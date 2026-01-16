@@ -2,95 +2,103 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* NutriBebê Design System - Soft & Nurturing */
+    --background: 40 50% 97%;
+    --foreground: 150 15% 25%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 60% 99%;
+    --card-foreground: 150 15% 25%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 60% 99%;
+    --popover-foreground: 150 15% 25%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sage Green - Primary */
+    --primary: 95 25% 55%;
+    --primary-foreground: 40 60% 99%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Cream - Secondary */
+    --secondary: 40 60% 94%;
+    --secondary-foreground: 150 15% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 40 30% 92%;
+    --muted-foreground: 150 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Soft Terracotta - Accent */
+    --accent: 15 50% 75%;
+    --accent-foreground: 15 40% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 40 60% 99%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 25% 88%;
+    --input: 40 25% 88%;
+    --ring: 95 25% 55%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Custom Colors */
+    --sage: 95 25% 55%;
+    --sage-light: 95 30% 85%;
+    --sage-dark: 95 25% 40%;
+    --cream: 40 60% 97%;
+    --cream-dark: 40 40% 90%;
+    --terracotta: 15 50% 70%;
+    --terracotta-light: 15 55% 85%;
+    --lavender: 270 30% 80%;
+    --lavender-light: 270 35% 92%;
+    --peach: 25 70% 85%;
+    --sky: 200 50% 80%;
+
+    /* Food Group Colors */
+    --protein: 15 55% 65%;
+    --carbs: 40 60% 70%;
+    --veggies: 120 30% 60%;
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(150 15% 25% / 0.08);
+    --shadow-card: 0 8px 30px -8px hsl(150 15% 25% / 0.1);
+    --shadow-elevated: 0 12px 40px -12px hsl(150 15% 25% / 0.15);
+
+    /* Gradients */
+    --gradient-sage: linear-gradient(135deg, hsl(95 30% 60%), hsl(95 25% 50%));
+    --gradient-cream: linear-gradient(180deg, hsl(40 60% 99%), hsl(40 50% 95%));
+    --gradient-sunset: linear-gradient(135deg, hsl(15 55% 75%), hsl(25 65% 80%));
+    --gradient-morning: linear-gradient(135deg, hsl(200 50% 85%), hsl(95 30% 75%));
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 150 20% 10%;
+    --foreground: 40 50% 95%;
+    --card: 150 18% 14%;
+    --card-foreground: 40 50% 95%;
+    --popover: 150 18% 14%;
+    --popover-foreground: 40 50% 95%;
+    --primary: 95 30% 60%;
+    --primary-foreground: 150 20% 10%;
+    --secondary: 150 15% 20%;
+    --secondary-foreground: 40 50% 95%;
+    --muted: 150 15% 20%;
+    --muted-foreground: 40 30% 70%;
+    --accent: 15 45% 60%;
+    --accent-foreground: 40 50% 95%;
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 40 50% 95%;
+    --border: 150 15% 25%;
+    --input: 150 15% 25%;
+    --ring: 95 30% 60%;
   }
 }
 
@@ -100,6 +108,191 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .card-elevated {
+    @apply bg-card rounded-2xl p-5;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-soft {
+    @apply bg-card/80 backdrop-blur-sm rounded-2xl p-4;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground rounded-xl px-6 py-3 font-semibold;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground rounded-xl px-6 py-3 font-medium;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:bg-secondary/80 active:scale-[0.98];
+  }
+
+  .btn-accent {
+    @apply rounded-xl px-6 py-3 font-semibold text-white;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+    background: var(--gradient-sunset);
+    box-shadow: 0 4px 20px -4px hsl(var(--terracotta) / 0.4);
+  }
+
+  .food-tag {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+  }
+
+  .food-tag-protein {
+    @apply food-tag;
+    background: hsl(var(--protein) / 0.15);
+    color: hsl(var(--protein));
+  }
+
+  .food-tag-carbs {
+    @apply food-tag;
+    background: hsl(var(--carbs) / 0.2);
+    color: hsl(40 50% 40%);
+  }
+
+  .food-tag-veggies {
+    @apply food-tag;
+    background: hsl(var(--veggies) / 0.15);
+    color: hsl(var(--veggies));
+  }
+
+  .blur-paywall {
+    @apply relative overflow-hidden;
+  }
+
+  .blur-paywall::after {
+    content: '';
+    @apply absolute inset-0 backdrop-blur-md;
+    background: linear-gradient(180deg, transparent 0%, hsl(var(--cream) / 0.7) 100%);
+  }
+
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50;
+    @apply bg-card/95 backdrop-blur-xl border-t border-border/50;
+    @apply flex items-center justify-around;
+    @apply px-4 pb-safe;
+    box-shadow: 0 -4px 30px -4px hsl(150 15% 25% / 0.08);
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+
+  .nav-item {
+    @apply flex flex-col items-center gap-1 py-3 px-4;
+    @apply text-muted-foreground transition-colors duration-200;
+  }
+
+  .nav-item.active {
+    @apply text-primary;
+  }
+
+  .nav-item.active svg {
+    @apply scale-110;
+  }
+
+  .page-container {
+    @apply min-h-screen pb-24 px-4 pt-6;
+    background: var(--gradient-cream);
+  }
+
+  .section-title {
+    @apply text-lg font-bold text-foreground mb-3;
+  }
+
+  .meal-time-badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold;
+  }
+
+  .meal-time-lunch {
+    @apply meal-time-badge;
+    background: hsl(40 70% 92%);
+    color: hsl(35 60% 35%);
+  }
+
+  .meal-time-dinner {
+    @apply meal-time-badge;
+    background: hsl(270 35% 92%);
+    color: hsl(270 30% 40%);
+  }
+
+  .expandable-card {
+    @apply overflow-hidden transition-all duration-300 ease-out;
+  }
+
+  .generate-btn {
+    @apply w-full py-4 rounded-2xl font-bold text-lg text-primary-foreground;
+    @apply flex items-center justify-center gap-3;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.01] active:scale-[0.99];
+    background: var(--gradient-sage);
+    box-shadow: 0 8px 30px -8px hsl(var(--sage) / 0.5);
+  }
+
+  .ingredient-item {
+    @apply flex items-center justify-between py-3 px-4;
+    @apply bg-card rounded-xl;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .paywall-cta {
+    @apply w-full py-4 px-6 rounded-2xl font-bold text-lg text-white;
+    @apply flex items-center justify-center gap-2;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+    background: linear-gradient(135deg, hsl(15 65% 55%), hsl(25 70% 60%));
+    box-shadow: 0 8px 30px -8px hsl(15 65% 55% / 0.5);
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
