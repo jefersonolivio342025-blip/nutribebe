@@ -14,7 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alimentos: {
+        Row: {
+          corte_12_mais: string | null
+          corte_6_9m: string | null
+          corte_9_12m: string | null
+          created_at: string
+          id: string
+          nome: string
+          preparo: string | null
+          tipo: string
+        }
+        Insert: {
+          corte_12_mais?: string | null
+          corte_6_9m?: string | null
+          corte_9_12m?: string | null
+          created_at?: string
+          id?: string
+          nome: string
+          preparo?: string | null
+          tipo: string
+        }
+        Update: {
+          corte_12_mais?: string | null
+          corte_6_9m?: string | null
+          corte_9_12m?: string | null
+          created_at?: string
+          id?: string
+          nome?: string
+          preparo?: string | null
+          tipo?: string
+        }
+        Relationships: []
+      }
+      cardapios: {
+        Row: {
+          carboidrato_id: string | null
+          created_at: string
+          data: string
+          id: string
+          proteina_id: string | null
+          refeicao: string
+          user_id: string
+          vegetal_id: string | null
+        }
+        Insert: {
+          carboidrato_id?: string | null
+          created_at?: string
+          data: string
+          id?: string
+          proteina_id?: string | null
+          refeicao: string
+          user_id: string
+          vegetal_id?: string | null
+        }
+        Update: {
+          carboidrato_id?: string | null
+          created_at?: string
+          data?: string
+          id?: string
+          proteina_id?: string | null
+          refeicao?: string
+          user_id?: string
+          vegetal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cardapios_carboidrato_id_fkey"
+            columns: ["carboidrato_id"]
+            isOneToOne: false
+            referencedRelation: "alimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cardapios_proteina_id_fkey"
+            columns: ["proteina_id"]
+            isOneToOne: false
+            referencedRelation: "alimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cardapios_vegetal_id_fkey"
+            columns: ["vegetal_id"]
+            isOneToOne: false
+            referencedRelation: "alimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          is_premium: boolean
+          nome: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_premium?: boolean
+          nome?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_premium?: boolean
+          nome?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
