@@ -1,4 +1,4 @@
-import { Sparkles, Lock } from 'lucide-react';
+import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
 
@@ -6,9 +6,10 @@ interface TodayDashboardProps {
   todayMenu: DayMenu | null;
   onGenerate: () => void;
   isLocked: boolean;
+  isLoadingAlimentos?: boolean;
 }
 
-const TodayDashboard = ({ todayMenu, onGenerate, isLocked }: TodayDashboardProps) => {
+const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }: TodayDashboardProps) => {
   const today = new Date();
   const dayOfWeek = today.getDay();
   const isAfterWednesday = dayOfWeek >= 3;
@@ -35,9 +36,17 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked }: TodayDashboardProps
       </header>
 
       {/* Generate Button */}
-      <button onClick={onGenerate} className="generate-btn mb-6">
-        <Sparkles size={22} />
-        <span>Gerar Cardápio da Semana</span>
+      <button 
+        onClick={onGenerate} 
+        className="generate-btn mb-6"
+        disabled={isLoadingAlimentos}
+      >
+        {isLoadingAlimentos ? (
+          <Loader2 size={22} className="animate-spin" />
+        ) : (
+          <Sparkles size={22} />
+        )}
+        <span>{isLoadingAlimentos ? 'Carregando...' : 'Gerar Cardápio da Semana'}</span>
       </button>
 
       {/* Menu Content */}
