@@ -7,6 +7,11 @@ interface Profile {
   user_id: string;
   nome: string | null;
   is_premium: boolean;
+  sem_gluten: boolean;
+  aplv: boolean;
+  vegano: boolean;
+  baby_name: string | null;
+  baby_birth_date: string | null;
 }
 
 interface AuthContextType {

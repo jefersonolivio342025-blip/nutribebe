@@ -1,12 +1,22 @@
-import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle, Edit } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import EditProfileModal from './profile/EditProfileModal';
+import DietaryRestrictionsModal from './profile/DietaryRestrictionsModal';
+import BLWGuideModal from './profile/BLWGuideModal';
+import SupportModal from './profile/SupportModal';
 
 const ProfilePage = () => {
   const { user, profile, isPremium, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [dietaryOpen, setDietaryOpen] = useState(false);
+  const [blwGuideOpen, setBlwGuideOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const features = [
     {
@@ -14,18 +24,30 @@ const ProfilePage = () => {
       title: 'Guia BLW Completo',
       description: 'Cortes seguros para cada idade',
       color: 'bg-sage-light text-sage-dark',
+      onClick: () => setBlwGuideOpen(true),
     },
     {
-      icon: Heart,
-      title: 'Receitas Favoritas',
-      description: 'Salve suas preferidas',
-      color: 'bg-terracotta-light text-terracotta',
+      icon: Edit,
+      title: 'Editar Perfil',
+      description: 'Alterar dados do bebê e responsável',
+      color: 'bg-peach text-terracotta',
+      onClick: () => setEditProfileOpen(true),
     },
     {
       icon: Shield,
-      title: 'Alergias e Restrições',
-      description: 'Configure as preferências',
+      title: 'Restrições Alimentares',
+      description: profile?.sem_gluten || profile?.aplv || profile?.vegano 
+        ? 'Restrições ativas' 
+        : 'Configure as preferências',
       color: 'bg-lavender-light text-lavender',
+      onClick: () => setDietaryOpen(true),
+    },
+    {
+      icon: HelpCircle,
+      title: 'Suporte',
+      description: 'Dúvidas e ajuda',
+      color: 'bg-secondary text-muted-foreground',
+      onClick: () => setSupportOpen(true),
     },
   ];
 
@@ -50,24 +72,30 @@ const ProfilePage = () => {
       </header>
 
       {/* Profile Card */}
-      <div className="card-elevated mb-6">
+      <button 
+        onClick={() => setEditProfileOpen(true)}
+        className="card-elevated mb-6 w-full text-left hover:shadow-card transition-shadow"
+      >
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sage to-sage-dark flex items-center justify-center">
             <span className="text-3xl">👶</span>
           </div>
           <div className="flex-1">
             <h2 className="font-bold text-lg text-foreground">
-              {profile?.nome || 'Bebê'}
+              {profile?.baby_name || profile?.nome || 'Bebê'}
             </h2>
             <p className="text-sm text-muted-foreground">
               {user?.email}
             </p>
+            {profile?.baby_birth_date && (
+              <p className="text-xs text-muted-foreground mt-1">
+                🎂 {new Date(profile.baby_birth_date).toLocaleDateString('pt-BR')}
+              </p>
+            )}
           </div>
-          <button className="p-2 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors">
-            <ChevronRight size={20} className="text-muted-foreground" />
-          </button>
+          <ChevronRight size={20} className="text-muted-foreground" />
         </div>
-      </div>
+      </button>
 
       {/* Premium Card */}
       <div className={`card-elevated mb-6 ${
@@ -105,6 +133,7 @@ const ProfilePage = () => {
         {features.map((feature) => (
           <button
             key={feature.title}
+            onClick={feature.onClick}
             className="card-soft w-full flex items-center gap-4 hover:shadow-card transition-shadow"
           >
             <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center`}>
@@ -140,6 +169,12 @@ const ProfilePage = () => {
           NutriBebê v1.0 • Feito com 💚
         </p>
       </div>
+
+      {/* Modals */}
+      <EditProfileModal isOpen={editProfileOpen} onClose={() => setEditProfileOpen(false)} />
+      <DietaryRestrictionsModal isOpen={dietaryOpen} onClose={() => setDietaryOpen(false)} />
+      <BLWGuideModal isOpen={blwGuideOpen} onClose={() => setBlwGuideOpen(false)} />
+      <SupportModal isOpen={supportOpen} onClose={() => setSupportOpen(false)} />
     </div>
   );
 };

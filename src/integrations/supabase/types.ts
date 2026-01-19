@@ -104,28 +104,43 @@ export type Database = {
       }
       profiles: {
         Row: {
+          aplv: boolean
+          baby_birth_date: string | null
+          baby_name: string | null
           created_at: string
           id: string
           is_premium: boolean
           nome: string | null
+          sem_gluten: boolean
           updated_at: string
           user_id: string
+          vegano: boolean
         }
         Insert: {
+          aplv?: boolean
+          baby_birth_date?: string | null
+          baby_name?: string | null
           created_at?: string
           id?: string
           is_premium?: boolean
           nome?: string | null
+          sem_gluten?: boolean
           updated_at?: string
           user_id: string
+          vegano?: boolean
         }
         Update: {
+          aplv?: boolean
+          baby_birth_date?: string | null
+          baby_name?: string | null
           created_at?: string
           id?: string
           is_premium?: boolean
           nome?: string | null
+          sem_gluten?: boolean
           updated_at?: string
           user_id?: string
+          vegano?: boolean
         }
         Relationships: []
       }
