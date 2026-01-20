@@ -15,7 +15,6 @@ import {
 
 interface OnboardingScreenProps {
   userId: string;
-  isInstalled: boolean;
   onComplete: () => void;
 }
 
@@ -71,17 +70,17 @@ const steps: OnboardingStep[] = [
   },
 ];
 
-const OnboardingScreen = ({ userId, isInstalled, onComplete }: OnboardingScreenProps) => {
+const OnboardingScreen = ({ userId, onComplete }: OnboardingScreenProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem(`nutriBebe_onboarding_${userId}`);
-    if (isInstalled && !hasSeenOnboarding) {
+    if (!hasSeenOnboarding) {
       setIsVisible(true);
     }
-  }, [userId, isInstalled]);
+  }, [userId]);
 
   const handleComplete = () => {
     localStorage.setItem(`nutriBebe_onboarding_${userId}`, 'true');

@@ -105,7 +105,6 @@ const Index = () => {
       {user && isPremium && (
         <OnboardingScreen 
           userId={user.id}
-          isInstalled={isInstalled}
           onComplete={() => setShowWelcome(false)} 
         />
       )}
