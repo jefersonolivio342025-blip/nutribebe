@@ -7,7 +7,7 @@ import WeeklyCalendar from '@/components/WeeklyCalendar';
 import ShoppingList from '@/components/ShoppingList';
 import ProfilePage from '@/components/ProfilePage';
 import NutritionistsPage from '@/components/NutritionistsPage';
-import WelcomeScreen from '@/components/WelcomeScreen';
+import OnboardingScreen from '@/components/OnboardingScreen';
 import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
@@ -103,7 +103,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {user && isPremium && (
-        <WelcomeScreen 
+        <OnboardingScreen 
           userId={user.id}
           isInstalled={isInstalled}
           onComplete={() => setShowWelcome(false)} 
