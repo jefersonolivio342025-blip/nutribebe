@@ -120,10 +120,15 @@ const ProfilePage = () => {
               }
             </p>
             {!isPremium && (
-              <button className="paywall-cta w-full">
+              <a 
+                href="https://pay.kiwify.com.br/vrYjxfv" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="paywall-cta w-full inline-flex"
+              >
                 <Sparkles size={18} />
                 Assinar Plano Completo
-              </button>
+              </a>
             )}
           </div>
         </div>

@@ -91,10 +91,15 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                       A partir de quarta-feira, o cardápio é exclusivo para
                       assinantes do plano completo.
                     </p>
-                    <button className="paywall-cta">
+                    <a 
+                      href="https://pay.kiwify.com.br/vrYjxfv" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="paywall-cta inline-flex"
+                    >
                       <Sparkles size={20} />
                       Liberar Plano Completo
-                    </button>
+                    </a>
                   </div>
                 </div>
               )}
