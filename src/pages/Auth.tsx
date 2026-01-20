@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import babyImage from '@/assets/baby-eating.png';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
@@ -121,7 +122,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="p-6 pt-12 text-center">
-        <div className="text-6xl mb-4">🥗</div>
+        <img src={babyImage} alt="Bebê comendo" className="w-24 h-24 mx-auto mb-4 rounded-full shadow-soft" />
         <h1 className="text-3xl font-extrabold text-foreground">NutriBebê</h1>
         <p className="text-muted-foreground mt-2">
           Alimentação saudável para o seu bebê
