@@ -99,8 +99,8 @@ const NutritionistsPage = () => {
             </div>
 
             {/* Paywall Card - Centered */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="card-elevated bg-gradient-to-br from-terracotta-light to-peach border-2 border-terracotta/20 mx-4 max-w-sm">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="card-elevated bg-gradient-to-br from-terracotta-light to-peach border-2 border-terracotta/20 mx-4 max-w-sm pointer-events-auto">
                 <div className="text-center py-6 px-4">
                   <div className="w-20 h-20 rounded-full bg-white/50 flex items-center justify-center mx-auto mb-4">
                     <span className="text-4xl">👩‍⚕️</span>
