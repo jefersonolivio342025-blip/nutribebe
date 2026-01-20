@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, MousePointer, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { format, subDays, startOfDay } from 'date-fns';
+import { format, subDays, startOfDay, eachDayOfInterval } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ConversionStats {
   total: number;
@@ -11,10 +12,17 @@ interface ConversionStats {
   bySource: Record<string, number>;
 }
 
+interface DailyData {
+  date: string;
+  label: string;
+  cliques: number;
+}
+
 const ConversionAnalytics = () => {
   const [stats, setStats] = useState<ConversionStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [recentEvents, setRecentEvents] = useState<any[]>([]);
+  const [dailyData, setDailyData] = useState<DailyData[]>([]);
 
   useEffect(() => {
     fetchStats();
@@ -34,6 +42,7 @@ const ConversionAnalytics = () => {
       const events = allEvents || [];
       const today = startOfDay(new Date());
       const sevenDaysAgo = subDays(today, 7);
+      const fourteenDaysAgo = subDays(today, 14);
 
       // Calculate stats
       const todayEvents = events.filter(e => new Date(e.created_at) >= today);
@@ -51,6 +60,26 @@ const ConversionAnalytics = () => {
         bySource,
       });
 
+      // Calculate daily data for chart (last 14 days)
+      const days = eachDayOfInterval({ start: fourteenDaysAgo, end: today });
+      const dailyClicks: DailyData[] = days.map(day => {
+        const dayStart = startOfDay(day);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        
+        const count = events.filter(e => {
+          const eventDate = new Date(e.created_at);
+          return eventDate >= dayStart && eventDate < dayEnd;
+        }).length;
+
+        return {
+          date: format(day, 'yyyy-MM-dd'),
+          label: format(day, 'dd/MM', { locale: ptBR }),
+          cliques: count,
+        };
+      });
+
+      setDailyData(dailyClicks);
       setRecentEvents(events.slice(0, 10));
     } catch (error) {
       console.error('Error fetching conversion stats:', error);
@@ -93,6 +122,53 @@ const ConversionAnalytics = () => {
           <BarChart3 className="h-5 w-5 text-terracotta mx-auto mb-1" />
           <p className="text-2xl font-bold text-foreground">{stats?.last7Days || 0}</p>
           <p className="text-xs text-muted-foreground">Últimos 7 dias</p>
+        </div>
+      </div>
+
+      {/* Daily Trend Chart */}
+      <div className="card-soft">
+        <h3 className="font-bold text-foreground mb-4">Tendência de Cliques (14 dias)</h3>
+        <div className="h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={dailyData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+              <defs>
+                <linearGradient id="colorCliques" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(95, 25%, 55%)" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="hsl(95, 25%, 55%)" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="label" 
+                tick={{ fontSize: 10, fill: 'hsl(150, 10%, 45%)' }}
+                tickLine={false}
+                axisLine={false}
+                interval={1}
+              />
+              <YAxis 
+                tick={{ fontSize: 10, fill: 'hsl(150, 10%, 45%)' }}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'hsl(40, 60%, 99%)',
+                  border: '1px solid hsl(40, 25%, 88%)',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                }}
+                labelFormatter={(label) => `Data: ${label}`}
+                formatter={(value: number) => [`${value} cliques`, 'Cliques']}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="cliques" 
+                stroke="hsl(95, 25%, 55%)" 
+                strokeWidth={2}
+                fill="url(#colorCliques)" 
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
