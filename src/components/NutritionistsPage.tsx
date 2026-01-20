@@ -60,6 +60,17 @@ const NutritionistsPage = () => {
         </p>
       </header>
 
+      {/* Google Maps Button */}
+      <a
+        href="https://www.google.com/maps/search/nutricionista+materno+infantil/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 w-full py-4 mb-6 rounded-2xl bg-gradient-to-r from-primary to-sage-dark text-white font-bold text-base shadow-soft hover:shadow-md transition-all"
+      >
+        <MapPin size={20} />
+        Encontrar Nutricionistas Perto de Mim 📍
+      </a>
+
       {/* Search */}
       <div className="relative mb-6">
         <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
