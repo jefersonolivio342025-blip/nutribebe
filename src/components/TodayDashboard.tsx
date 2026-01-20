@@ -71,7 +71,7 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
                   as receitas e guias de preparo.
                 </p>
                 <a 
-                  href="https://pay.kiwify.com.br/vrYjxfv" 
+                  href="https://pay.kiwify.com.br/vrYjxFv" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="paywall-cta inline-flex"
