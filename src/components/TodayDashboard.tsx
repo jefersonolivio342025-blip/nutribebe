@@ -1,7 +1,8 @@
 import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
-import { useConversionTracking } from '@/hooks/useConversionTracking';
+import { useConversionTracking, useViewContentTracking } from '@/hooks/useConversionTracking';
+
 interface TodayDashboardProps {
   todayMenu: DayMenu | null;
   onGenerate: () => void;
@@ -11,6 +12,8 @@ interface TodayDashboardProps {
 
 const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }: TodayDashboardProps) => {
   const { handlePaywallClick } = useConversionTracking();
+  useViewContentTracking('Cardápio de Hoje', 'Menu');
+  
   const today = new Date();
   const dayOfWeek = today.getDay();
   const isAfterWednesday = dayOfWeek >= 3;

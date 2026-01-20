@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Check, ShoppingBag } from 'lucide-react';
 import { DayMenu, getShoppingList } from '@/data/menuData';
+import { useViewContentTracking } from '@/hooks/useConversionTracking';
 
 interface ShoppingListProps {
   weekMenu: DayMenu[];
 }
 
 const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
+  useViewContentTracking('Lista de Compras', 'Shopping');
+  
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
   const shoppingList = getShoppingList(weekMenu);

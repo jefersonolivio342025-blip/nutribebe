@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, Lock, Sparkles } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
-import { useConversionTracking } from '@/hooks/useConversionTracking';
+import { useConversionTracking, useViewContentTracking } from '@/hooks/useConversionTracking';
 
 interface WeeklyCalendarProps {
   weekMenu: DayMenu[];
@@ -11,6 +11,8 @@ interface WeeklyCalendarProps {
 
 const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
   const { handlePaywallClick } = useConversionTracking();
+  useViewContentTracking('Calendário Semanal', 'Menu');
+  
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDay());
   const today = new Date().getDay();
 
