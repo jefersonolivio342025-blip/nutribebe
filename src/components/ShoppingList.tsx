@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { Check, ShoppingBag } from 'lucide-react';
+import { Check, ShoppingBag, FileDown } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { DayMenu, getShoppingList } from '@/data/menuData';
-import { useViewContentTracking } from '@/hooks/useConversionTracking';
+import { useViewContentTracking, useConversionTracking } from '@/hooks/useConversionTracking';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ShoppingListProps {
   weekMenu: DayMenu[];
@@ -9,6 +13,8 @@ interface ShoppingListProps {
 
 const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
   useViewContentTracking('Lista de Compras', 'Shopping');
+  const { handlePaywallClick } = useConversionTracking();
+  const { isPremium } = useAuth();
   
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
 
@@ -46,15 +52,111 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
   const totalCount = sortedItems.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  const handleExportPDF = () => {
+    if (!isPremium) {
+      handlePaywallClick('Lista de Compras', 'Baixar Lista PDF');
+      toast.error('Recurso Exclusivo do Plano Vitalício ⭐', {
+        description: 'Libere seu acesso para baixar a lista em PDF!',
+        action: {
+          label: 'Liberar Acesso',
+          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxfv', '_blank'),
+        },
+      });
+      return;
+    }
+
+    if (sortedItems.length === 0) {
+      toast.error('Lista vazia', { description: 'Gere um cardápio primeiro!' });
+      return;
+    }
+
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Minha Lista NutriBebê PRO', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(today, 105, 30, { align: 'center' });
+
+    let yPosition = 50;
+    const lineHeight = 8;
+    const categorySpacing = 15;
+
+    // Categories
+    const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
+    
+    categoryOrder.forEach((group) => {
+      const items = groupedItems[group];
+      if (!items || items.length === 0) return;
+
+      // Check if we need a new page
+      if (yPosition > 260) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      // Category header
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${groupLabels[group].emoji} ${groupLabels[group].label}`, 20, yPosition);
+      yPosition += lineHeight + 2;
+
+      // Items
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      
+      items.forEach(({ food, count }) => {
+        if (yPosition > 280) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        doc.text(`• ${food.name} (${count}x)`, 25, yPosition);
+        yPosition += lineHeight;
+      });
+
+      yPosition += categorySpacing;
+    });
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text('Gerado por NutriBebê PRO', 105, 290, { align: 'center' });
+
+    doc.save('lista-nutribebe.pdf');
+    toast.success('PDF baixado com sucesso! 📄');
+  };
+
   return (
     <div className="page-container">
       <header className="mb-6">
-        <h1 className="text-2xl font-extrabold text-foreground">
-          Lista de Compras 🛒
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Ingredientes para a semana toda
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-extrabold text-foreground">
+              Lista de Compras 🛒
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ingredientes para a semana toda
+            </p>
+          </div>
+          <Button
+            onClick={handleExportPDF}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <FileDown size={16} />
+            <span className="hidden sm:inline">Baixar PDF</span>
+            <span className="sm:hidden">📄</span>
+          </Button>
+        </div>
       </header>
 
       {sortedItems.length > 0 ? (
