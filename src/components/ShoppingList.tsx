@@ -159,10 +159,22 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
       return;
     }
 
-    if (sortedItems.length === 0) {
-      toast.error('Lista vazia', { description: 'Gere um cardápio primeiro!' });
+    if (checkedItems.size === 0) {
+      toast.error('Nenhum item selecionado', { 
+        description: 'Selecione os itens que deseja compartilhar.' 
+      });
       return;
     }
+
+    // Filter only checked items
+    const selectedItems = sortedItems.filter(([id]) => checkedItems.has(id));
+    const selectedGroupedItems = selectedItems.reduce((acc, [id, { food, count }]) => {
+      if (!acc[food.group]) {
+        acc[food.group] = [];
+      }
+      acc[food.group].push({ id, food, count });
+      return acc;
+    }, {} as Record<string, { id: string; food: typeof sortedItems[0][1]['food']; count: number }[]>);
 
     const today = new Date().toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -175,7 +187,7 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
     const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
     
     categoryOrder.forEach((group) => {
-      const items = groupedItems[group];
+      const items = selectedGroupedItems[group];
       if (!items || items.length === 0) return;
 
       message += `*${groupLabels[group].emoji} ${groupLabels[group].label}*\n`;
@@ -189,7 +201,7 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-    toast.success('Abrindo WhatsApp...');
+    toast.success(`Compartilhando ${checkedItems.size} item(ns)...`);
   };
 
   return (
