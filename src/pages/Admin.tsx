@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope } from 'lucide-react';
+import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NutricionistasManager from '@/components/admin/NutricionistasManager';
+import ConversionAnalytics from '@/components/admin/ConversionAnalytics';
 interface UserProfile {
   id: string;
   user_id: string;
@@ -178,7 +179,11 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="nutris" className="flex-1 gap-2">
               <Stethoscope size={16} />
-              Nutricionistas
+              Nutris
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 gap-2">
+              <BarChart3 size={16} />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -271,6 +276,10 @@ const Admin = () => {
 
           <TabsContent value="nutris">
             <NutricionistasManager />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <ConversionAnalytics />
           </TabsContent>
         </Tabs>
       </div>

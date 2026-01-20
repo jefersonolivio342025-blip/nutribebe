@@ -3,6 +3,7 @@ import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle,
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useConversionTracking } from '@/hooks/useConversionTracking';
 import EditProfileModal from './profile/EditProfileModal';
 import DietaryRestrictionsModal from './profile/DietaryRestrictionsModal';
 import BLWGuideModal from './profile/BLWGuideModal';
@@ -13,6 +14,7 @@ const ProfilePage = () => {
   const { user, profile, isPremium, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { handlePaywallClick } = useConversionTracking();
   
   const isAdmin = profile?.is_admin ?? false;
   
@@ -135,6 +137,7 @@ const ProfilePage = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="paywall-cta w-full inline-flex"
+                  onClick={() => handlePaywallClick('profile_page')}
                 >
                   <Sparkles size={18} />
                   Liberar Acesso Vitalício ⭐

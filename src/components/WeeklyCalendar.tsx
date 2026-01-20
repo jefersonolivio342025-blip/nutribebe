@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, Lock, Sparkles } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
+import { useConversionTracking } from '@/hooks/useConversionTracking';
 
 interface WeeklyCalendarProps {
   weekMenu: DayMenu[];
@@ -9,6 +10,7 @@ interface WeeklyCalendarProps {
 }
 
 const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
+  const { handlePaywallClick } = useConversionTracking();
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDay());
   const today = new Date().getDay();
 
@@ -95,6 +97,7 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="paywall-cta inline-flex"
+                      onClick={() => handlePaywallClick('weekly_calendar')}
                     >
                       <Sparkles size={20} />
                       Liberar Acesso Vitalício ⭐
