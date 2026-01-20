@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Search, Loader2, Check, X } from 'lucide-react';
+import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import NutricionistasManager from '@/components/admin/NutricionistasManager';
 interface UserProfile {
   id: string;
   user_id: string;
@@ -163,95 +164,115 @@ const Admin = () => {
               Painel Admin 👑
             </h1>
             <p className="text-sm text-muted-foreground">
-              Gerenciar usuários premium
+              Gerenciar usuários e nutricionistas
             </p>
           </div>
         </header>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+        {/* Tabs */}
+        <Tabs defaultValue="users" className="w-full">
+          <TabsList className="w-full mb-6">
+            <TabsTrigger value="users" className="flex-1 gap-2">
+              <Users size={16} />
+              Usuários
+            </TabsTrigger>
+            <TabsTrigger value="nutris" className="flex-1 gap-2">
+              <Stethoscope size={16} />
+              Nutricionistas
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users">
+            {/* Search */}
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
               <Input
-            placeholder="Buscar por nome ou email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+                placeholder="Buscar por nome ou email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="card-soft">
-            <p className="text-2xl font-bold text-foreground">{users.length}</p>
-            <p className="text-sm text-muted-foreground">Total de usuários</p>
-          </div>
-          <div className="card-soft bg-gradient-to-br from-sage-light to-sage">
-            <p className="text-2xl font-bold text-foreground">
-              {users.filter(u => u.is_premium).length}
-            </p>
-            <p className="text-sm text-muted-foreground">Usuários premium</p>
-          </div>
-        </div>
-
-        {/* Users List */}
-        <h2 className="section-title">Usuários ({filteredUsers.length})</h2>
-        
-        {isLoadingUsers ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="space-y-3 pb-8">
-            {filteredUsers.map((userProfile) => (
-              <div 
-                key={userProfile.id}
-                className="card-soft flex items-center gap-4"
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sage to-sage-dark flex items-center justify-center">
-                  <span className="text-xl">
-                    {userProfile.is_premium ? '⭐' : '👶'}
-                  </span>
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground truncate">
-                    {userProfile.baby_name || userProfile.nome || 'Sem nome'}
-                  </p>
-                  <p className="text-xs text-primary truncate">
-                    {userEmails[userProfile.user_id] || 'Email não disponível'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Criado em: {new Date(userProfile.created_at).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {updatingUser === userProfile.user_id ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  ) : (
-                    <>
-                      <Crown 
-                        size={18} 
-                        className={userProfile.is_premium ? 'text-sage-dark' : 'text-muted-foreground'} 
-                      />
-                      <Switch
-                        checked={userProfile.is_premium}
-                        onCheckedChange={() => togglePremium(userProfile.user_id, userProfile.is_premium)}
-                        disabled={updatingUser !== null}
-                      />
-                    </>
-                  )}
-                </div>
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="card-soft">
+                <p className="text-2xl font-bold text-foreground">{users.length}</p>
+                <p className="text-sm text-muted-foreground">Total de usuários</p>
               </div>
-            ))}
+              <div className="card-soft bg-gradient-to-br from-sage-light to-sage">
+                <p className="text-2xl font-bold text-foreground">
+                  {users.filter(u => u.is_premium).length}
+                </p>
+                <p className="text-sm text-muted-foreground">Usuários premium</p>
+              </div>
+            </div>
 
-            {filteredUsers.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                Nenhum usuário encontrado
+            {/* Users List */}
+            <h2 className="section-title">Usuários ({filteredUsers.length})</h2>
+            
+            {isLoadingUsers ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-3 pb-8">
+                {filteredUsers.map((userProfile) => (
+                  <div 
+                    key={userProfile.id}
+                    className="card-soft flex items-center gap-4"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sage to-sage-dark flex items-center justify-center">
+                      <span className="text-xl">
+                        {userProfile.is_premium ? '⭐' : '👶'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground truncate">
+                        {userProfile.baby_name || userProfile.nome || 'Sem nome'}
+                      </p>
+                      <p className="text-xs text-primary truncate">
+                        {userEmails[userProfile.user_id] || 'Email não disponível'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Criado em: {new Date(userProfile.created_at).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {updatingUser === userProfile.user_id ? (
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                      ) : (
+                        <>
+                          <Crown 
+                            size={18} 
+                            className={userProfile.is_premium ? 'text-sage-dark' : 'text-muted-foreground'} 
+                          />
+                          <Switch
+                            checked={userProfile.is_premium}
+                            onCheckedChange={() => togglePremium(userProfile.user_id, userProfile.is_premium)}
+                            disabled={updatingUser !== null}
+                          />
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {filteredUsers.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhum usuário encontrado
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
+          </TabsContent>
+
+          <TabsContent value="nutris">
+            <NutricionistasManager />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
