@@ -13,37 +13,43 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
 
-    // Create client with user's auth token for verification
+    // Validate authorization header
     const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Missing authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+    // Create client with anon key for JWT validation
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     })
 
-    // Get the requesting user
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    )
-
-    if (userError || !user) {
+    // Validate JWT using getClaims
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token)
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error('Claims error:', claimsError)
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Check if user is admin
-    const { data: profile, error: profileError } = await supabaseClient
+    const userId = claimsData.claims.sub as string
+
+    // Check if user is admin using service role client
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+    
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('is_admin')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (profileError || !profile?.is_admin) {
@@ -53,9 +59,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Use service role client to fetch all users from auth.users
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-    
+    // Fetch all users from auth.users
     const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers()
 
     if (authError) {
