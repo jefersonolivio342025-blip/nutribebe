@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Droplets, Snowflake, AlertTriangle, Utensils, Lock, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useConversionTracking } from '@/hooks/useConversionTracking';
 
 interface SafetyGuideModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface SafetyGuideModalProps {
 
 const SafetyGuideModal = ({ isOpen, onClose }: SafetyGuideModalProps) => {
   const { isPremium } = useAuth();
+  const { handlePaywallClick } = useConversionTracking();
 
   const topics = [
     {
@@ -118,6 +120,7 @@ const SafetyGuideModal = ({ isOpen, onClose }: SafetyGuideModalProps) => {
               target="_blank" 
               rel="noopener noreferrer"
               className="paywall-cta inline-flex"
+              onClick={() => handlePaywallClick('safety_guide_modal')}
             >
               <Sparkles size={20} />
               Liberar Acesso Vitalício ⭐

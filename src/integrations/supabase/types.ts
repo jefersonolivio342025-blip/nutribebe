@@ -102,6 +102,39 @@ export type Database = {
           },
         ]
       }
+      conversion_events: {
+        Row: {
+          button_text: string | null
+          created_at: string
+          event_type: string
+          id: string
+          is_premium: boolean | null
+          source_page: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          button_text?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_premium?: boolean | null
+          source_page: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          button_text?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_premium?: boolean | null
+          source_page?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       nutricionistas: {
         Row: {
           bairro: string | null

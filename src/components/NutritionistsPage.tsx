@@ -3,6 +3,7 @@ import { Search, MapPin, Phone, Instagram, Lock, Sparkles, Loader2 } from 'lucid
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
+import { useConversionTracking } from '@/hooks/useConversionTracking';
 
 interface Nutricionista {
   id: string;
@@ -17,6 +18,7 @@ interface Nutricionista {
 
 const NutritionistsPage = () => {
   const { isPremium } = useAuth();
+  const { handlePaywallClick } = useConversionTracking();
   const [nutricionistas, setNutricionistas] = useState<Nutricionista[]>([]);
   const [searchCity, setSearchCity] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -116,6 +118,7 @@ const NutritionistsPage = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="paywall-cta inline-flex"
+                    onClick={() => handlePaywallClick('nutritionists_page')}
                   >
                     <Sparkles size={20} />
                     Liberar Acesso Vitalício ⭐

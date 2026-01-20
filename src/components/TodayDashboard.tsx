@@ -1,7 +1,7 @@
 import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
-
+import { useConversionTracking } from '@/hooks/useConversionTracking';
 interface TodayDashboardProps {
   todayMenu: DayMenu | null;
   onGenerate: () => void;
@@ -10,6 +10,7 @@ interface TodayDashboardProps {
 }
 
 const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }: TodayDashboardProps) => {
+  const { handlePaywallClick } = useConversionTracking();
   const today = new Date();
   const dayOfWeek = today.getDay();
   const isAfterWednesday = dayOfWeek >= 3;
@@ -74,6 +75,7 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="paywall-cta inline-flex"
+                  onClick={() => handlePaywallClick('today_dashboard')}
                 >
                   <Sparkles size={20} />
                   Liberar Acesso Vitalício ⭐
