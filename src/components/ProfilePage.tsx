@@ -131,7 +131,7 @@ const ProfilePage = () => {
             {!isPremium && (
               <>
                 <a 
-                  href="https://pay.kiwify.com.br/vrYjxfv" 
+                  href="https://pay.kiwify.com.br/vrYjxFv" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="paywall-cta w-full inline-flex"

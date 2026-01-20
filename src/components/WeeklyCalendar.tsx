@@ -91,7 +91,7 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                       Adquira seu Acesso Vitalício agora e tenha o guia completo na palma da sua mão.
                     </p>
                     <a 
-                      href="https://pay.kiwify.com.br/vrYjxfv" 
+                      href="https://pay.kiwify.com.br/vrYjxFv" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="paywall-cta inline-flex"

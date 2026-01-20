@@ -114,7 +114,7 @@ const SafetyGuideModal = ({ isOpen, onClose }: SafetyGuideModalProps) => {
             </div>
 
             <a 
-              href="https://pay.kiwify.com.br/vrYjxfv" 
+              href="https://pay.kiwify.com.br/vrYjxFv" 
               target="_blank" 
               rel="noopener noreferrer"
               className="paywall-cta inline-flex"
