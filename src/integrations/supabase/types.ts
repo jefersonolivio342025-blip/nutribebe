@@ -102,6 +102,42 @@ export type Database = {
           },
         ]
       }
+      nutricionistas: {
+        Row: {
+          bairro: string | null
+          cidade: string
+          created_at: string
+          crn: string
+          especialidade: string
+          id: string
+          instagram: string | null
+          link_whatsapp: string | null
+          nome: string
+        }
+        Insert: {
+          bairro?: string | null
+          cidade: string
+          created_at?: string
+          crn: string
+          especialidade: string
+          id?: string
+          instagram?: string | null
+          link_whatsapp?: string | null
+          nome: string
+        }
+        Update: {
+          bairro?: string | null
+          cidade?: string
+          created_at?: string
+          crn?: string
+          especialidade?: string
+          id?: string
+          instagram?: string | null
+          link_whatsapp?: string | null
+          nome?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           aplv: boolean

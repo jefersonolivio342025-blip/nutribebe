@@ -6,11 +6,12 @@ import TodayDashboard from '@/components/TodayDashboard';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
 import ShoppingList from '@/components/ShoppingList';
 import ProfilePage from '@/components/ProfilePage';
+import NutritionistsPage from '@/components/NutritionistsPage';
 import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
 
-type NavTab = 'today' | 'calendar' | 'list' | 'profile';
+type NavTab = 'today' | 'calendar' | 'list' | 'nutris' | 'profile';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('today');
@@ -74,6 +75,8 @@ const Index = () => {
         return <WeeklyCalendar weekMenu={weekMenu} isLocked={isLocked} />;
       case 'list':
         return <ShoppingList weekMenu={weekMenu} />;
+      case 'nutris':
+        return <NutritionistsPage />;
       case 'profile':
         return <ProfilePage />;
       default:
