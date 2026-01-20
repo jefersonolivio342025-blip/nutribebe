@@ -6,6 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 const emailSchema = z.string().email('Email inválido');
 const passwordSchema = z.string().min(6, 'Senha deve ter no mínimo 6 caracteres');
 
@@ -98,6 +104,10 @@ const Auth = () => {
             });
           }
         } else {
+          // Track Facebook Pixel CompleteRegistration event
+          if (typeof window.fbq === 'function') {
+            window.fbq('track', 'CompleteRegistration');
+          }
           toast({
             title: 'Conta criada! 🎉',
             description: 'Bem-vindo ao NutriBebê',
