@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -44,4 +44,16 @@ export const useConversionTracking = () => {
   }, [trackConversionClick]);
 
   return { trackConversionClick, handlePaywallClick };
+};
+
+// Hook to track ViewContent on page load
+export const useViewContentTracking = (contentName: string, contentCategory?: string) => {
+  useEffect(() => {
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'ViewContent', {
+        content_name: contentName,
+        content_category: contentCategory || 'Page View',
+      });
+    }
+  }, [contentName, contentCategory]);
 };
