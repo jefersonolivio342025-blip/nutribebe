@@ -2,6 +2,12 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 interface TrackConversionParams {
   sourcePage: string;
   buttonText?: string;
@@ -12,6 +18,7 @@ export const useConversionTracking = () => {
 
   const trackConversionClick = useCallback(async ({ sourcePage, buttonText }: TrackConversionParams) => {
     try {
+      // Track in Supabase
       await supabase.from('conversion_events').insert({
         user_id: user?.id || null,
         event_type: 'paywall_click',
@@ -20,6 +27,11 @@ export const useConversionTracking = () => {
         user_agent: navigator.userAgent,
         is_premium: isPremium,
       });
+
+      // Track Facebook Pixel InitiateCheckout event
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'InitiateCheckout');
+      }
     } catch (error) {
       // Silent fail - don't block the user action
       console.error('Failed to track conversion:', error);
