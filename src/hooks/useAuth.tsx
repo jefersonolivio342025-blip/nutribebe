@@ -7,6 +7,7 @@ interface Profile {
   user_id: string;
   nome: string | null;
   is_premium: boolean;
+  is_admin: boolean;
   sem_gluten: boolean;
   aplv: boolean;
   vegano: boolean;

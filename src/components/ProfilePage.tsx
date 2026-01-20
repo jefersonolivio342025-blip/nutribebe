@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle, Edit } from 'lucide-react';
+import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle, Edit, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,8 @@ const ProfilePage = () => {
   const { user, profile, isPremium, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const isAdmin = profile?.is_admin ?? false;
   
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [dietaryOpen, setDietaryOpen] = useState(false);
@@ -126,6 +128,23 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Admin Button */}
+      {isAdmin && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="card-elevated mb-6 w-full flex items-center gap-4 bg-gradient-to-br from-terracotta to-terracotta-light border-2 border-terracotta/20 hover:shadow-card transition-shadow"
+        >
+          <div className="w-12 h-12 rounded-xl bg-white/30 flex items-center justify-center">
+            <Settings size={24} className="text-white" />
+          </div>
+          <div className="flex-1 text-left">
+            <h3 className="font-bold text-white">Painel Admin 👑</h3>
+            <p className="text-sm text-white/80">Gerenciar usuários premium</p>
+          </div>
+          <ChevronRight size={20} className="text-white" />
+        </button>
+      )}
 
       {/* Features */}
       <h2 className="section-title">Configurações</h2>
