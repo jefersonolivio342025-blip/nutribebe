@@ -11,6 +11,7 @@ import WelcomeScreen from '@/components/WelcomeScreen';
 import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 type NavTab = 'today' | 'calendar' | 'list' | 'nutris' | 'profile';
 
@@ -21,6 +22,7 @@ const Index = () => {
   
   const { user, loading, isPremium } = useAuth();
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
+  const { isInstalled } = usePWAInstall();
   const navigate = useNavigate();
 
   // Redirect to auth if not logged in
@@ -102,7 +104,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {user && isPremium && (
         <WelcomeScreen 
-          userId={user.id} 
+          userId={user.id}
+          isInstalled={isInstalled}
           onComplete={() => setShowWelcome(false)} 
         />
       )}
