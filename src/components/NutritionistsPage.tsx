@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Phone, Instagram, Lock, Sparkles, Loader2 } from 'lucide-react';
+import { Search, MapPin, Phone, Instagram, Lock, Sparkles, Loader2, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,8 @@ const NutritionistsPage = () => {
     nutri.cidade.toLowerCase().includes(searchCity.toLowerCase()) ||
     (nutri.bairro && nutri.bairro.toLowerCase().includes(searchCity.toLowerCase()))
   );
+
+  const isEmpty = nutricionistas.length === 0;
 
   return (
     <div className="page-container">
@@ -149,86 +151,117 @@ const NutritionistsPage = () => {
             Encontrar Nutricionistas Perto de Mim 📍
           </a>
 
-          {/* Search */}
-          <div className="relative mb-6">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Buscar por cidade ou bairro..."
-              value={searchCity}
-              onChange={(e) => setSearchCity(e.target.value)}
-              className="pl-12 h-12 rounded-2xl bg-card border-none shadow-soft"
-            />
-          </div>
-
-          {/* Results */}
+          {/* Loading State */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="animate-spin text-primary" size={32} />
             </div>
-          ) : filteredNutricionistas.length === 0 ? (
-            <div className="card-elevated text-center py-12">
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-lg font-bold text-foreground mb-2">
-                Nenhum nutricionista encontrado
+          ) : isEmpty ? (
+            /* Empty State - Coming Soon */
+            <div className="card-elevated text-center py-10 px-6">
+              <div className="w-20 h-20 rounded-full bg-sage-light flex items-center justify-center mx-auto mb-4">
+                <span className="text-4xl">👩‍⚕️</span>
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-3">
+                Em Breve! ✨
               </h3>
-              <p className="text-muted-foreground">
-                Tente buscar por outra cidade
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                Estamos selecionando as melhores nutricionistas da sua região para este guia. 
+                Se você é nutricionista e deseja aparecer aqui, entre em contato conosco.
               </p>
+              <a
+                href="https://wa.me/5547991158519"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-green-500 text-white font-bold text-base hover:bg-green-600 transition-colors"
+              >
+                <MessageCircle size={20} />
+                Sou Nutricionista e Quero Parceria
+              </a>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredNutricionistas.map((nutri) => (
-                <div key={nutri.id} className="card-elevated">
-                  <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-sage-dark flex items-center justify-center flex-shrink-0">
-                      <span className="text-2xl">👩‍⚕️</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-foreground truncate">{nutri.nome}</h3>
-                      <p className="text-xs text-muted-foreground">{nutri.crn}</p>
-                      <p className="text-sm text-primary font-medium mt-1">{nutri.especialidade}</p>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                        <MapPin size={14} />
-                        <span>{nutri.bairro ? `${nutri.bairro}, ` : ''}{nutri.cidade}</span>
+            /* List of Nutritionists */
+            <>
+              {/* Search */}
+              <div className="relative mb-6">
+                <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por cidade ou bairro..."
+                  value={searchCity}
+                  onChange={(e) => setSearchCity(e.target.value)}
+                  className="pl-12 h-12 rounded-2xl bg-card border-none shadow-soft"
+                />
+              </div>
+
+              {/* Results */}
+              {filteredNutricionistas.length === 0 ? (
+                <div className="card-elevated text-center py-12">
+                  <div className="text-5xl mb-4">🔍</div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">
+                    Nenhum nutricionista encontrado
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Tente buscar por outra cidade
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredNutricionistas.map((nutri) => (
+                    <div key={nutri.id} className="card-elevated">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sage to-sage-dark flex items-center justify-center flex-shrink-0">
+                          <span className="text-2xl">👩‍⚕️</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-foreground truncate">{nutri.nome}</h3>
+                          <p className="text-xs text-muted-foreground">{nutri.crn}</p>
+                          <p className="text-sm text-primary font-medium mt-1">{nutri.especialidade}</p>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                            <MapPin size={14} />
+                            <span>{nutri.bairro ? `${nutri.bairro}, ` : ''}{nutri.cidade}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2 mt-4">
+                        {nutri.link_whatsapp && (
+                          <a
+                            href={nutri.link_whatsapp}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-colors"
+                          >
+                            <Phone size={16} />
+                            Agendar Consulta
+                          </a>
+                        )}
+                        {nutri.instagram && (
+                          <a
+                            href={`https://instagram.com/${nutri.instagram.replace('@', '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                          >
+                            <Instagram size={20} />
+                          </a>
+                        )}
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-4">
-                    {nutri.link_whatsapp && (
-                      <a
-                        href={nutri.link_whatsapp}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-green-500 text-white font-semibold text-sm hover:bg-green-600 transition-colors"
-                      >
-                        <Phone size={16} />
-                        Agendar Consulta
-                      </a>
-                    )}
-                    {nutri.instagram && (
-                      <a
-                        href={`https://instagram.com/${nutri.instagram.replace('@', '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white"
-                      >
-                        <Instagram size={20} />
-                      </a>
-                    )}
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
 
           {/* Footer note */}
-          <div className="mt-8 text-center">
-            <p className="text-xs text-muted-foreground">
-              💚 Profissionais verificados pela equipe NutriBebê
-            </p>
-          </div>
+          {!isEmpty && (
+            <div className="mt-8 text-center">
+              <p className="text-xs text-muted-foreground">
+                💚 Profissionais verificados pela equipe NutriBebê
+              </p>
+            </div>
+          )}
         </>
       )}
     </div>
