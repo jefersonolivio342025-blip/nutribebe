@@ -70,10 +70,15 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
                   Desbloqueie o cardápio completo da semana e tenha acesso a todas
                   as receitas e guias de preparo.
                 </p>
-                <button className="paywall-cta">
+                <a 
+                  href="https://pay.kiwify.com.br/vrYjxfv" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="paywall-cta inline-flex"
+                >
                   <Sparkles size={20} />
-                  Liberar Plano Completo na Kiwify
-                </button>
+                  Liberar Plano Completo
+                </a>
               </div>
             </div>
           )}

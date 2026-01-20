@@ -47,6 +47,14 @@ const SupportModal = ({ isOpen, onClose }: SupportModalProps) => {
     },
   ];
 
+  const handleWhatsAppClick = () => {
+    window.open('https://wa.me/5547991158519', '_blank');
+  };
+
+  const handleEmailClick = () => {
+    window.open('mailto:suporte@nutribebe.app', '_blank');
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
       <div className="bg-background rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto animate-scale-in">
@@ -64,20 +72,34 @@ const SupportModal = ({ isOpen, onClose }: SupportModalProps) => {
           {/* Contact Options */}
           <div className="space-y-3">
             <h3 className="font-semibold text-foreground">Fale Conosco</h3>
-            {supportOptions.slice(0, 2).map((option) => (
-              <button
-                key={option.title}
-                className="card-soft w-full flex items-center gap-4 hover:shadow-card transition-shadow"
-              >
-                <div className={`w-12 h-12 rounded-xl ${option.color} flex items-center justify-center`}>
-                  <option.icon size={22} />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-foreground">{option.title}</p>
-                  <p className="text-sm text-muted-foreground">{option.description}</p>
-                </div>
-              </button>
-            ))}
+            
+            {/* WhatsApp Button */}
+            <button
+              onClick={handleWhatsAppClick}
+              className="card-soft w-full flex items-center gap-4 hover:shadow-card transition-shadow"
+            >
+              <div className="w-12 h-12 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
+                <MessageCircle size={22} />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-semibold text-foreground">WhatsApp</p>
+                <p className="text-sm text-muted-foreground">Fale conosco pelo WhatsApp</p>
+              </div>
+            </button>
+
+            {/* Email Button */}
+            <button
+              onClick={handleEmailClick}
+              className="card-soft w-full flex items-center gap-4 hover:shadow-card transition-shadow"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                <Mail size={22} />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-semibold text-foreground">E-mail</p>
+                <p className="text-sm text-muted-foreground">Envie sua dúvida por e-mail</p>
+              </div>
+            </button>
           </div>
 
           {/* FAQ Section */}
