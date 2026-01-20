@@ -111,24 +111,29 @@ const ProfilePage = () => {
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-foreground mb-1">
-              {isPremium ? 'Plano Premium ⭐' : 'Plano Gratuito'}
+              {isPremium ? 'Acesso Vitalício ⭐' : 'Plano Gratuito'}
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {isPremium 
                 ? 'Acesso completo a todos os dias da semana'
-                : 'Acesso ao cardápio de domingo a terça-feira'
+                : 'Garanta seu acesso vitalício e desbloqueie o cardápio completo para sempre por apenas R$ 29,90'
               }
             </p>
             {!isPremium && (
-              <a 
-                href="https://pay.kiwify.com.br/vrYjxFv" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="paywall-cta w-full inline-flex"
-              >
-                <Sparkles size={18} />
-                Assinar Plano Completo
-              </a>
+              <>
+                <a 
+                  href="https://pay.kiwify.com.br/vrYjxfv" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="paywall-cta w-full inline-flex"
+                >
+                  <Sparkles size={18} />
+                  Liberar Acesso Vitalício ⭐
+                </a>
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Compra segura. Acesso vitalício sem mensalidades.
+                </p>
+              </>
             )}
           </div>
         </div>

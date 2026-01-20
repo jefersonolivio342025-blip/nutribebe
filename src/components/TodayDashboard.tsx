@@ -64,21 +64,23 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
                   <Lock size={28} className="text-terracotta" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-2">
-                  Conteúdo Bloqueado
+                  Conteúdo Exclusivo NutriBebê PRO
                 </h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Desbloqueie o cardápio completo da semana e tenha acesso a todas
-                  as receitas e guias de preparo.
+                  Adquira seu Acesso Vitalício agora e tenha o guia completo na palma da sua mão.
                 </p>
                 <a 
-                  href="https://pay.kiwify.com.br/vrYjxFv" 
+                  href="https://pay.kiwify.com.br/vrYjxfv" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="paywall-cta inline-flex"
                 >
                   <Sparkles size={20} />
-                  Liberar Plano Completo
+                  Liberar Acesso Vitalício ⭐
                 </a>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Compra segura. Acesso vitalício sem mensalidades.
+                </p>
               </div>
             </div>
           )}
