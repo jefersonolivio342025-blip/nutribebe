@@ -19,11 +19,12 @@ interface UserProfile {
 }
 
 const Admin = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, session } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [userEmails, setUserEmails] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
@@ -45,10 +46,11 @@ const Admin = () => {
   }, [user, loading, isAdmin, navigate, toast]);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (isAdmin && session) {
       fetchUsers();
+      fetchUserEmails();
     }
-  }, [isAdmin]);
+  }, [isAdmin, session]);
 
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
@@ -69,6 +71,23 @@ const Admin = () => {
       });
     } finally {
       setIsLoadingUsers(false);
+    }
+  };
+
+  const fetchUserEmails = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-user-emails');
+      
+      if (error) {
+        console.error('Error fetching emails:', error);
+        return;
+      }
+      
+      if (data?.emails) {
+        setUserEmails(data.emails);
+      }
+    } catch (error) {
+      console.error('Error fetching emails:', error);
     }
   };
 
@@ -106,11 +125,15 @@ const Admin = () => {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    (u.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     u.baby_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     u.user_id.includes(searchTerm))
-  );
+  const filteredUsers = users.filter(u => {
+    const email = userEmails[u.user_id] || '';
+    return (
+      u.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.baby_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.user_id.includes(searchTerm) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   if (loading) {
     return (
@@ -148,8 +171,8 @@ const Admin = () => {
         {/* Search */}
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-          <Input
-            placeholder="Buscar por nome..."
+              <Input
+            placeholder="Buscar por nome ou email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -194,8 +217,8 @@ const Admin = () => {
                   <p className="font-semibold text-foreground truncate">
                     {userProfile.baby_name || userProfile.nome || 'Sem nome'}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    ID: {userProfile.user_id.slice(0, 8)}...
+                  <p className="text-xs text-primary truncate">
+                    {userEmails[userProfile.user_id] || 'Email não disponível'}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Criado em: {new Date(userProfile.created_at).toLocaleDateString('pt-BR')}
