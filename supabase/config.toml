@@ -1,1 +1,7 @@
 project_id = "kpseuvvhaynlbpnuaenf"
+
+[functions.get-user-emails]
+verify_jwt = false
+
+[functions.kiwify-webhook]
+verify_jwt = false
