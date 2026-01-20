@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Baby, Sparkles } from 'lucide-react';
+import { CheckCircle2, Baby, Sparkles, X } from 'lucide-react';
 
 interface WelcomeScreenProps {
   userId: string;
@@ -105,6 +105,19 @@ const WelcomeScreen = ({ userId, isInstalled, onComplete }: WelcomeScreenProps) 
           animate="visible"
           exit="exit"
         >
+          {/* Close button */}
+          <motion.button
+            className="absolute top-6 right-6 bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
+            onClick={handleComplete}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <X className="h-5 w-5 text-white" />
+          </motion.button>
+
           {/* Decorative sparkles */}
           <motion.div
             className="absolute top-10 left-10"
