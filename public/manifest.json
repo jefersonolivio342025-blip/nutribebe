@@ -1,24 +1,41 @@
 {
-  "name": "NutriBebê",
+  "name": "NutriBebê PRO",
   "short_name": "NutriBebê",
-  "description": "Cardápios inteligentes para seu bebê com guias de BLW",
+  "description": "Cardápios inteligentes para seu bebê com guias de BLW e lista de compras",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFF8E7",
   "theme_color": "#9CAF88",
   "orientation": "portrait",
+  "scope": "/",
+  "id": "/",
+  "categories": ["food", "health", "lifestyle"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }
