@@ -109,6 +109,7 @@ export type Database = {
           baby_name: string | null
           created_at: string
           id: string
+          is_admin: boolean
           is_premium: boolean
           nome: string | null
           sem_gluten: boolean
@@ -122,6 +123,7 @@ export type Database = {
           baby_name?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean
           is_premium?: boolean
           nome?: string | null
           sem_gluten?: boolean
@@ -135,6 +137,7 @@ export type Database = {
           baby_name?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean
           is_premium?: boolean
           nome?: string | null
           sem_gluten?: boolean
