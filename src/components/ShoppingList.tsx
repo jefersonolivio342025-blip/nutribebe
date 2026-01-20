@@ -65,10 +65,22 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
       return;
     }
 
-    if (sortedItems.length === 0) {
-      toast.error('Lista vazia', { description: 'Gere um cardápio primeiro!' });
+    if (checkedItems.size === 0) {
+      toast.error('Nenhum item selecionado', { 
+        description: 'Selecione os itens que deseja baixar.' 
+      });
       return;
     }
+
+    // Filter only checked items
+    const selectedItems = sortedItems.filter(([id]) => checkedItems.has(id));
+    const selectedGroupedItems = selectedItems.reduce((acc, [id, { food, count }]) => {
+      if (!acc[food.group]) {
+        acc[food.group] = [];
+      }
+      acc[food.group].push({ id, food, count });
+      return acc;
+    }, {} as Record<string, { id: string; food: typeof sortedItems[0][1]['food']; count: number }[]>);
 
     const doc = new jsPDF();
     const today = new Date().toLocaleDateString('pt-BR', {
@@ -94,7 +106,7 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
     const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
     
     categoryOrder.forEach((group) => {
-      const items = groupedItems[group];
+      const items = selectedGroupedItems[group];
       if (!items || items.length === 0) return;
 
       // Check if we need a new page
@@ -130,8 +142,8 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
     doc.setTextColor(150);
     doc.text('Gerado por NutriBebê PRO', 105, 290, { align: 'center' });
 
-    doc.save('lista-nutribebe.pdf');
-    toast.success('PDF baixado com sucesso! 📄');
+    doc.save('lista-nutribebe-selecionados.pdf');
+    toast.success(`PDF com ${checkedItems.size} item(ns) baixado! 📄`);
   };
 
   const handleShareWhatsApp = () => {
@@ -209,7 +221,8 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
               className="flex items-center gap-1"
             >
               <FileDown size={16} />
-              <span className="hidden sm:inline">PDF</span>
+              <span className="hidden sm:inline">Selecionados</span>
+              <span className="sm:hidden">📄</span>
             </Button>
           </div>
         </div>
