@@ -92,7 +92,7 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                       assinantes do plano completo.
                     </p>
                     <a 
-                      href="https://pay.kiwify.com.br/vrYjxfv" 
+                      href="https://pay.kiwify.com.br/vrYjxFv" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="paywall-cta inline-flex"
