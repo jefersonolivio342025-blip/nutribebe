@@ -7,6 +7,7 @@ import WeeklyCalendar from '@/components/WeeklyCalendar';
 import ShoppingList from '@/components/ShoppingList';
 import ProfilePage from '@/components/ProfilePage';
 import NutritionistsPage from '@/components/NutritionistsPage';
+import WelcomeScreen from '@/components/WelcomeScreen';
 import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
@@ -16,6 +17,7 @@ type NavTab = 'today' | 'calendar' | 'list' | 'nutris' | 'profile';
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('today');
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>([]);
+  const [showWelcome, setShowWelcome] = useState(true);
   
   const { user, loading, isPremium } = useAuth();
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
@@ -98,6 +100,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {user && isPremium && (
+        <WelcomeScreen 
+          userId={user.id} 
+          onComplete={() => setShowWelcome(false)} 
+        />
+      )}
       {renderContent()}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
