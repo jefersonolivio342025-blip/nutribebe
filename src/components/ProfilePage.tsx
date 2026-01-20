@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle, Edit, Settings } from 'lucide-react';
+import { Baby, Heart, Shield, Sparkles, ChevronRight, Crown, LogOut, HelpCircle, Edit, Settings, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import EditProfileModal from './profile/EditProfileModal';
 import DietaryRestrictionsModal from './profile/DietaryRestrictionsModal';
 import BLWGuideModal from './profile/BLWGuideModal';
 import SupportModal from './profile/SupportModal';
+import SafetyGuideModal from './profile/SafetyGuideModal';
 
 const ProfilePage = () => {
   const { user, profile, isPremium, signOut } = useAuth();
@@ -19,6 +20,7 @@ const ProfilePage = () => {
   const [dietaryOpen, setDietaryOpen] = useState(false);
   const [blwGuideOpen, setBlwGuideOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [safetyGuideOpen, setSafetyGuideOpen] = useState(false);
 
   const features = [
     {
@@ -27,6 +29,13 @@ const ProfilePage = () => {
       description: 'Cortes seguros para cada idade',
       color: 'bg-sage-light text-sage-dark',
       onClick: () => setBlwGuideOpen(true),
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Guia de Segurança',
+      description: isPremium ? 'Higiene e conservação' : '🔒 Conteúdo VIP',
+      color: 'bg-blue-100 text-blue-600',
+      onClick: () => setSafetyGuideOpen(true),
     },
     {
       icon: Edit,
@@ -204,6 +213,7 @@ const ProfilePage = () => {
       <DietaryRestrictionsModal isOpen={dietaryOpen} onClose={() => setDietaryOpen(false)} />
       <BLWGuideModal isOpen={blwGuideOpen} onClose={() => setBlwGuideOpen(false)} />
       <SupportModal isOpen={supportOpen} onClose={() => setSupportOpen(false)} />
+      <SafetyGuideModal isOpen={safetyGuideOpen} onClose={() => setSafetyGuideOpen(false)} />
     </div>
   );
 };
