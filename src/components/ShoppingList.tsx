@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, ShoppingBag, FileDown } from 'lucide-react';
+import { Check, ShoppingBag, FileDown, Share2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { DayMenu, getShoppingList } from '@/data/menuData';
 import { useViewContentTracking, useConversionTracking } from '@/hooks/useConversionTracking';
@@ -134,6 +134,52 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
     toast.success('PDF baixado com sucesso! 📄');
   };
 
+  const handleShareWhatsApp = () => {
+    if (!isPremium) {
+      handlePaywallClick('Lista de Compras', 'Compartilhar WhatsApp');
+      toast.error('Recurso Exclusivo do Plano Vitalício ⭐', {
+        description: 'Libere seu acesso para compartilhar a lista!',
+        action: {
+          label: 'Liberar Acesso',
+          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxfv', '_blank'),
+        },
+      });
+      return;
+    }
+
+    if (sortedItems.length === 0) {
+      toast.error('Lista vazia', { description: 'Gere um cardápio primeiro!' });
+      return;
+    }
+
+    const today = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    let message = `🛒 *Minha Lista NutriBebê PRO*\n📅 ${today}\n\n`;
+
+    const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
+    
+    categoryOrder.forEach((group) => {
+      const items = groupedItems[group];
+      if (!items || items.length === 0) return;
+
+      message += `*${groupLabels[group].emoji} ${groupLabels[group].label}*\n`;
+      items.forEach(({ food, count }) => {
+        message += `• ${food.name} (${count}x)\n`;
+      });
+      message += '\n';
+    });
+
+    message += '✨ _Gerado por NutriBebê PRO_';
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    toast.success('Abrindo WhatsApp...');
+  };
+
   return (
     <div className="page-container">
       <header className="mb-6">
@@ -146,16 +192,26 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
               Ingredientes para a semana toda
             </p>
           </div>
-          <Button
-            onClick={handleExportPDF}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <FileDown size={16} />
-            <span className="hidden sm:inline">Baixar PDF</span>
-            <span className="sm:hidden">📄</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleShareWhatsApp}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Share2 size={16} />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </Button>
+            <Button
+              onClick={handleExportPDF}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <FileDown size={16} />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+          </div>
         </div>
       </header>
 
