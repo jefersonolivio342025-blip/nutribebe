@@ -4,7 +4,7 @@
   "description": "Cardápios inteligentes para seu bebê com guias de BLW e lista de compras",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFF8E7",
+  "background_color": "#9CAF88",
   "theme_color": "#9CAF88",
   "orientation": "portrait",
   "scope": "/",
