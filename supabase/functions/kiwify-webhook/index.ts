@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,6 +8,8 @@ const corsHeaders = {
 
 const PIXEL_ID = "3077997939046690";
 const FB_ACCESS_TOKEN = Deno.env.get("FB_ACCESS_TOKEN");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 interface KiwifyPayload {
   order_id: string;
@@ -88,6 +91,61 @@ async function sendFacebookConversionEvent(payload: KiwifyPayload) {
   }
 }
 
+async function updateUserPremiumStatus(payload: KiwifyPayload) {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const email = payload.Customer?.email?.toLowerCase().trim();
+
+  if (!email) {
+    console.error("No email found in Kiwify payload");
+    return { success: false, error: "No email in payload" };
+  }
+
+  try {
+    // Find user by email in auth.users
+    const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+    
+    if (userError) {
+      console.error("Error listing users:", userError);
+      return { success: false, error: userError.message };
+    }
+
+    const user = users.users.find(u => u.email?.toLowerCase() === email);
+
+    if (user) {
+      // Update existing user's profile to premium
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ 
+          is_premium: true,
+          nome: payload.Customer?.full_name || undefined,
+        })
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        console.error("Error updating profile:", updateError);
+        return { success: false, error: updateError.message };
+      }
+
+      console.log(`User ${email} upgraded to premium`);
+      return { success: true, message: `User ${email} upgraded to premium`, userId: user.id };
+    } else {
+      // User not registered yet - store pending premium in a separate tracking
+      console.log(`User ${email} not found - will need to claim premium after registration`);
+      
+      // We could create a pending_premium table, but for now just log it
+      // The admin can manually upgrade them via the admin panel
+      return { 
+        success: true, 
+        message: `User ${email} not registered yet - pending premium activation`,
+        pending: true 
+      };
+    }
+  } catch (error) {
+    console.error("Error updating premium status:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -98,16 +156,22 @@ serve(async (req) => {
     const payload: KiwifyPayload = await req.json();
     console.log("Kiwify webhook received:", JSON.stringify(payload, null, 2));
 
-    // Only track completed purchases
+    // Only process completed purchases
     if (payload.order_status === "paid" || payload.order_status === "completed") {
+      // Track Facebook conversion
       const fbResult = await sendFacebookConversionEvent(payload);
       console.log("Facebook tracking result:", fbResult);
+
+      // Update user premium status
+      const premiumResult = await updateUserPremiumStatus(payload);
+      console.log("Premium update result:", premiumResult);
 
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "Purchase event tracked",
-          facebook: fbResult 
+          message: "Purchase processed",
+          facebook: fbResult,
+          premium: premiumResult
         }),
         { 
           headers: { ...corsHeaders, "Content-Type": "application/json" },
