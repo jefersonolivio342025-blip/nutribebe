@@ -2,6 +2,7 @@ import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
 import { useConversionTracking, useViewContentTracking } from '@/hooks/useConversionTracking';
+import PWAInstallBanner from './PWAInstallBanner';
 
 interface TodayDashboardProps {
   todayMenu: DayMenu | null;
@@ -29,6 +30,9 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
 
   return (
     <div className="page-container">
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
+
       {/* Header */}
       <header className="mb-6">
         <p className="text-sm text-muted-foreground font-medium capitalize">
