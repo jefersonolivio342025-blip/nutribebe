@@ -112,7 +112,7 @@ const NutritionistsPage = () => {
                     Tenha acesso à nossa rede de nutricionistas materno-infantis parceiras e encontre a profissional ideal para acompanhar o seu bebê. Garanta seu Acesso Vitalício agora.
                   </p>
                   <a 
-                    href="https://pay.kiwify.com.br/vrYjxfv" 
+                    href="https://pay.kiwify.com.br/vrYjxFv" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="paywall-cta inline-flex"
