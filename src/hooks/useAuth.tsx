@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { getStoredUTMParams, clearStoredUTMParams } from '@/hooks/useUTMCapture';
 
 interface Profile {
   id: string;
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, nome?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -103,6 +104,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         data: { nome }
       }
     });
+
+    // Se o signup foi bem-sucedido, atualiza o perfil com os UTMs
+    if (!error && data.user) {
+      const utmParams = getStoredUTMParams();
+      const hasUTMs = Object.values(utmParams).some(v => v !== null);
+      
+      if (hasUTMs) {
+        // Aguarda um pouco para garantir que o trigger criou o perfil
+        setTimeout(async () => {
+          await supabase
+            .from('profiles')
+            .update({
+              utm_source: utmParams.utm_source,
+              utm_medium: utmParams.utm_medium,
+              utm_campaign: utmParams.utm_campaign,
+              utm_content: utmParams.utm_content,
+            })
+            .eq('user_id', data.user!.id);
+          
+          clearStoredUTMParams();
+        }, 1000);
+      }
+    }
 
     return { error };
   };

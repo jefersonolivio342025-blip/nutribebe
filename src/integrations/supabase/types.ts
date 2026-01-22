@@ -184,6 +184,10 @@ export type Database = {
           sem_gluten: boolean
           updated_at: string
           user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
           vegano: boolean
         }
         Insert: {
@@ -198,6 +202,10 @@ export type Database = {
           sem_gluten?: boolean
           updated_at?: string
           user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           vegano?: boolean
         }
         Update: {
@@ -212,6 +220,10 @@ export type Database = {
           sem_gluten?: boolean
           updated_at?: string
           user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           vegano?: boolean
         }
         Relationships: []

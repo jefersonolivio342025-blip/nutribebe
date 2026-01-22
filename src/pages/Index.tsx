@@ -12,6 +12,7 @@ import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useUTMCapture } from '@/hooks/useUTMCapture';
 
 type NavTab = 'today' | 'calendar' | 'list' | 'nutris' | 'profile';
 
@@ -24,6 +25,9 @@ const Index = () => {
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
   const { isInstalled } = usePWAInstall();
   const navigate = useNavigate();
+  
+  // Captura parâmetros UTM da URL
+  useUTMCapture();
 
   // Redirect to auth if not logged in
   useEffect(() => {
