@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NutricionistasManager from '@/components/admin/NutricionistasManager';
 import ConversionAnalytics from '@/components/admin/ConversionAnalytics';
+import MarketingDashboard from '@/components/admin/MarketingDashboard';
 interface UserProfile {
   id: string;
   user_id: string;
@@ -171,21 +172,29 @@ const Admin = () => {
         </header>
 
         {/* Tabs */}
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="w-full mb-6">
-            <TabsTrigger value="users" className="flex-1 gap-2">
-              <Users size={16} />
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="w-full mb-6 flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="dashboard" className="flex-1 gap-1 text-xs px-2">
+              <LayoutDashboard size={14} />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex-1 gap-1 text-xs px-2">
+              <Users size={14} />
               Usuários
             </TabsTrigger>
-            <TabsTrigger value="nutris" className="flex-1 gap-2">
-              <Stethoscope size={16} />
+            <TabsTrigger value="nutris" className="flex-1 gap-1 text-xs px-2">
+              <Stethoscope size={14} />
               Nutris
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex-1 gap-2">
-              <BarChart3 size={16} />
+            <TabsTrigger value="analytics" className="flex-1 gap-1 text-xs px-2">
+              <BarChart3 size={14} />
               Analytics
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard">
+            <MarketingDashboard />
+          </TabsContent>
 
           <TabsContent value="users">
             {/* Search */}
