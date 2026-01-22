@@ -65,6 +65,7 @@ const Auth = () => {
   const [nome, setNome] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
 
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -75,6 +76,54 @@ const Auth = () => {
       navigate('/');
     }
   }, [user, loading, navigate]);
+
+  // Real-time email validation
+  const validateEmail = (value: string) => {
+    if (!touched.email) return;
+    try {
+      emailSchema.parse(value);
+      setErrors(prev => ({ ...prev, email: undefined }));
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, email: e.errors[0].message }));
+      }
+    }
+  };
+
+  // Real-time password validation
+  const validatePassword = (value: string) => {
+    if (!touched.password) return;
+    try {
+      passwordSchema.parse(value);
+      setErrors(prev => ({ ...prev, password: undefined }));
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, password: e.errors[0].message }));
+      }
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    validateEmail(value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    validatePassword(value);
+  };
+
+  const handleEmailBlur = () => {
+    setTouched(prev => ({ ...prev, email: true }));
+    validateEmail(email);
+  };
+
+  const handlePasswordBlur = () => {
+    setTouched(prev => ({ ...prev, password: true }));
+    validatePassword(password);
+  };
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -95,6 +144,7 @@ const Auth = () => {
       }
     }
 
+    setTouched({ email: true, password: true });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -325,10 +375,11 @@ const Auth = () => {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
                   placeholder="seu@email.com"
                   className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
-                    errors.email ? 'border-destructive' : 'border-transparent focus:border-primary/50'
+                    errors.email ? 'border-destructive' : touched.email && !errors.email ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
                   }`}
                 />
               </div>
@@ -362,10 +413,11 @@ const Auth = () => {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
+                  onBlur={handlePasswordBlur}
                   placeholder="••••••"
                   className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
-                    errors.password ? 'border-destructive' : 'border-transparent focus:border-primary/50'
+                    errors.password ? 'border-destructive' : touched.password && !errors.password ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
                   }`}
                 />
               </div>
