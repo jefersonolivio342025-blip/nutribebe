@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import babyImage from '@/assets/baby-eating.png';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +15,48 @@ declare global {
 
 const emailSchema = z.string().email('Email inválido');
 const passwordSchema = z.string().min(6, 'Senha deve ter no mínimo 6 caracteres');
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94] as const
+    }
+  }
+};
+
+const formFieldVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94] as const
+    }
+  },
+  exit: {
+    opacity: 0,
+    x: 20,
+    transition: {
+      duration: 0.3
+    }
+  }
+};
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -123,43 +166,113 @@ const Auth = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary/5 blur-3xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
+        <motion.div 
+          className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-accent/5 blur-3xl"
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
+      </div>
+
       {/* Header */}
-      <header className="p-6 pt-12 text-center">
-        <img src={babyImage} alt="Bebê comendo" className="w-24 h-24 mx-auto mb-4 rounded-full shadow-soft" />
-        <h1 className="text-3xl font-extrabold text-foreground">NutriBebê</h1>
-        <p className="text-muted-foreground mt-2">
+      <motion.header 
+        className="p-6 pt-12 text-center relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <motion.img 
+            src={babyImage} 
+            alt="Bebê comendo" 
+            className="w-28 h-28 mx-auto mb-4 rounded-full shadow-elevated ring-4 ring-primary/20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05, rotate: 3 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          />
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="flex items-center justify-center gap-2"
+        >
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h1 className="text-3xl font-extrabold text-foreground bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            NutriBebê
+          </h1>
+          <Sparkles className="w-5 h-5 text-primary" />
+        </motion.div>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="text-muted-foreground mt-2 text-base"
+        >
           Alimentação saudável para o seu bebê
-        </p>
-      </header>
+        </motion.p>
+      </motion.header>
 
       {/* Form */}
-      <main className="flex-1 px-6 py-8">
-        <div className="card-elevated max-w-sm mx-auto">
+      <main className="flex-1 px-6 py-6 relative z-10">
+        <motion.div 
+          className="card-elevated max-w-sm mx-auto backdrop-blur-sm bg-card/95"
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
           {/* Tabs */}
-          <div className="flex rounded-xl bg-secondary p-1 mb-6">
+          <div className="flex rounded-xl bg-secondary p-1.5 mb-6 relative">
+            <motion.div 
+              className="absolute inset-y-1.5 rounded-lg bg-card shadow-soft"
+              initial={false}
+              animate={{ 
+                x: isLogin ? 4 : '100%',
+                width: 'calc(50% - 8px)'
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                isLogin
-                  ? 'bg-card text-foreground shadow-soft'
-                  : 'text-muted-foreground'
+              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors relative z-10 ${
+                isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'
               }`}
             >
               Entrar
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                !isLogin
-                  ? 'bg-card text-foreground shadow-soft'
-                  : 'text-muted-foreground'
+              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors relative z-10 ${
+                !isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'
               }`}
             >
               Cadastrar
@@ -167,99 +280,148 @@ const Auth = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  Nome do bebê
-                </label>
-                <div className="relative">
-                  <User
-                    size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  />
-                  <input
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    placeholder="Ex: Maria"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
-                  />
-                </div>
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {!isLogin && (
+                <motion.div
+                  key="nome-field"
+                  variants={formFieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Nome do bebê
+                  </label>
+                  <div className="relative group">
+                    <User
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
+                    />
+                    <input
+                      type="text"
+                      value={nome}
+                      onChange={(e) => setNome(e.target.value)}
+                      placeholder="Ex: Maria"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 border-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-primary/50 outline-none transition-all duration-300"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               <label className="text-sm font-medium text-foreground mb-2 block">
                 Email
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <Mail
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
                 />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary outline-none transition-all ${
-                    errors.email ? 'ring-2 ring-destructive' : ''
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
+                    errors.email ? 'border-destructive' : 'border-transparent focus:border-primary/50'
                   }`}
                 />
               </div>
-              {errors.email && (
-                <p className="text-xs text-destructive mt-1">{errors.email}</p>
-              )}
-            </div>
+              <AnimatePresence>
+                {errors.email && (
+                  <motion.p 
+                    className="text-xs text-destructive mt-1"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                  >
+                    {errors.email}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
               <label className="text-sm font-medium text-foreground mb-2 block">
                 Senha
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <Lock
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
                 />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-0 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary outline-none transition-all ${
-                    errors.password ? 'ring-2 ring-destructive' : ''
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
+                    errors.password ? 'border-destructive' : 'border-transparent focus:border-primary/50'
                   }`}
                 />
               </div>
-              {errors.password && (
-                <p className="text-xs text-destructive mt-1">{errors.password}</p>
-              )}
-            </div>
+              <AnimatePresence>
+                {errors.password && (
+                  <motion.p 
+                    className="text-xs text-destructive mt-1"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                  >
+                    {errors.password}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="generate-btn w-full mt-6"
+              className="generate-btn w-full mt-6 relative overflow-hidden"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
             >
               {isSubmitting ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
                   <span>{isLogin ? 'Entrar' : 'Criar Conta'}</span>
-                  <ArrowRight size={20} />
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ArrowRight size={20} />
+                  </motion.div>
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
       </main>
 
       {/* Footer */}
-      <footer className="p-6 text-center">
+      <motion.footer 
+        className="p-6 text-center relative z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
         <p className="text-sm text-muted-foreground">
           NutriBebê v1.0 • Feito com 💚
         </p>
-      </footer>
+      </motion.footer>
     </div>
   );
 };
