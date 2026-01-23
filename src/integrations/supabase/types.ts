@@ -135,6 +135,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          clicked_at: string | null
+          converted_at: string | null
+          created_at: string
+          email_to: string
+          email_type: string
+          id: string
+          opened_at: string | null
+          resend_id: string | null
+          status: string
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          converted_at?: string | null
+          created_at?: string
+          email_to: string
+          email_type: string
+          id?: string
+          opened_at?: string | null
+          resend_id?: string | null
+          status?: string
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          converted_at?: string | null
+          created_at?: string
+          email_to?: string
+          email_type?: string
+          id?: string
+          opened_at?: string | null
+          resend_id?: string | null
+          status?: string
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       nutricionistas: {
         Row: {
           bairro: string | null
