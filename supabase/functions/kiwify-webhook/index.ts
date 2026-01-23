@@ -252,6 +252,37 @@ async function sendFacebookConversionEvent(payload: KiwifyPayload) {
 
 // ============ PREMIUM STATUS UPDATE ============
 
+async function sendPremiumEmail(email: string, name?: string) {
+  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+  
+  if (!SUPABASE_ANON_KEY) {
+    console.error("SUPABASE_ANON_KEY not configured for email sending");
+    return { success: false, error: "Email service not configured" };
+  }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: email,
+        template: "premium",
+        data: { name },
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Premium email sent:", result);
+    return { success: response.ok, result };
+  } catch (error) {
+    console.error("Error sending premium email:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
 async function updateUserPremiumStatus(payload: KiwifyPayload) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const email = payload.Customer?.email?.toLowerCase().trim();
@@ -287,6 +318,9 @@ async function updateUserPremiumStatus(payload: KiwifyPayload) {
         console.error("Error updating profile:", updateError);
         return { success: false, error: updateError.message };
       }
+
+      // Send premium congratulations email
+      await sendPremiumEmail(email, payload.Customer?.full_name);
 
       console.log(`User ${email} upgraded to premium`);
       return {
