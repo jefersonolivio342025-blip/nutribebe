@@ -8,3 +8,15 @@ verify_jwt = false
 
 [functions.send-bulk-recovery-emails]
 verify_jwt = false
+
+[functions.send-followup-emails]
+verify_jwt = false
+
+[functions.send-recovery-email]
+verify_jwt = false
+
+[functions.track-email]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false
