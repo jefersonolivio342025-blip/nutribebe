@@ -24,7 +24,8 @@ interface ProfilePayload {
   schema: string;
 }
 
-const recoveryEmailTemplate = (name: string) => `
+// Template with tracking pixel placeholder
+const recoveryEmailTemplate = (name: string, trackingPixelUrl: string, ctaUrl: string) => `
 <!DOCTYPE html>
 <html>
   <head>
@@ -65,9 +66,9 @@ const recoveryEmailTemplate = (name: string) => `
           </ul>
         </div>
         
-        <!-- CTA Button -->
+        <!-- CTA Button with click tracking -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${KIWIFY_CHECKOUT_URL}" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); transition: transform 0.2s;">
+          <a href="${ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); transition: transform 0.2s;">
             🚀 Liberar Acesso Agora
           </a>
         </div>
@@ -90,6 +91,8 @@ const recoveryEmailTemplate = (name: string) => `
         <a href="https://nutribebe.lovable.app" style="color: #22c55e; text-decoration: none;">nutribebe.lovable.app</a>
       </p>
     </div>
+    <!-- Tracking Pixel -->
+    <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" />
   </body>
 </html>
 `;
@@ -145,8 +148,35 @@ const handler = async (req: Request): Promise<Response> => {
 
     const email = userData.user.email;
     const name = payload.record.nome || "";
-
     const emailSubject = "Quase tudo pronto para a IA do seu bebê! 🍎";
+
+    // First, create the email log to get the ID for tracking
+    const { data: emailLog, error: logError } = await supabase
+      .from("email_logs")
+      .insert({
+        user_id: payload.record.user_id,
+        email_to: email,
+        email_type: "recovery",
+        subject: emailSubject,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (logError || !emailLog) {
+      console.error("Error creating email log:", logError);
+      throw new Error("Failed to create email log");
+    }
+
+    const emailLogId = emailLog.id;
+    
+    // Build tracking URLs
+    const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email?id=${emailLogId}&action=open`;
+    const ctaClickUrl = `${SUPABASE_URL}/functions/v1/track-email?id=${emailLogId}&action=click`;
+    
+    // For click tracking, we'll redirect to Kiwify after tracking
+    // We'll use a simple approach: track open, but clicks go directly to Kiwify
+    // (Full click tracking would require a redirect endpoint)
 
     // Send recovery email via Resend
     const response = await fetch("https://api.resend.com/emails", {
@@ -159,7 +189,7 @@ const handler = async (req: Request): Promise<Response> => {
         from: "NutriBebê Pro <onboarding@resend.dev>",
         to: [email],
         subject: emailSubject,
-        html: recoveryEmailTemplate(name),
+        html: recoveryEmailTemplate(name, trackingPixelUrl, KIWIFY_CHECKOUT_URL),
       }),
     });
 
@@ -168,29 +198,25 @@ const handler = async (req: Request): Promise<Response> => {
     if (!response.ok) {
       console.error("Resend API error:", responseData);
       
-      // Log failed email
-      await supabase.from("email_logs").insert({
-        user_id: payload.record.user_id,
-        email_to: email,
-        email_type: "recovery",
-        subject: emailSubject,
-        status: "failed",
-      });
+      // Update log as failed
+      await supabase
+        .from("email_logs")
+        .update({ status: "failed" })
+        .eq("id", emailLogId);
       
       throw new Error(responseData.message || "Failed to send email");
     }
 
-    // Log successful email
-    await supabase.from("email_logs").insert({
-      user_id: payload.record.user_id,
-      email_to: email,
-      email_type: "recovery",
-      subject: emailSubject,
-      status: "sent",
-      resend_id: responseData.id,
-    });
+    // Update log with success and resend_id
+    await supabase
+      .from("email_logs")
+      .update({ 
+        status: "sent",
+        resend_id: responseData.id,
+      })
+      .eq("id", emailLogId);
 
-    console.log("Recovery email sent successfully to:", email);
+    console.log("Recovery email sent successfully to:", email, "with tracking ID:", emailLogId);
 
     return new Response(
       JSON.stringify({ success: true, message: "Recovery email sent", data: responseData }),

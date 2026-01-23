@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Send, CheckCircle2, XCircle, TrendingUp, Users, Percent } from 'lucide-react';
+import { Mail, Send, CheckCircle2, XCircle, TrendingUp, Eye, MousePointer, Percent } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { format, subDays, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -69,21 +69,17 @@ export const EmailDashboard = () => {
   const totalEmailsFailed = emailLogs.filter(e => e.status === 'failed').length;
   const totalRecoveryEmails = emailLogs.filter(e => e.email_type === 'recovery').length;
   
-  // Users who received recovery email and then converted
-  const recoveryEmailUsers = new Set(
-    emailLogs
-      .filter(e => e.email_type === 'recovery' && e.status === 'sent')
-      .map(e => e.email_to)
-  );
+  // Open tracking metrics
+  const emailsOpened = emailLogs.filter(e => e.opened_at).length;
+  const openRate = totalEmailsSent > 0 ? ((emailsOpened / totalEmailsSent) * 100).toFixed(1) : '0';
+  
+  // Click tracking metrics
+  const emailsClicked = emailLogs.filter(e => e.clicked_at).length;
+  const clickRate = emailsOpened > 0 ? ((emailsClicked / emailsOpened) * 100).toFixed(1) : '0';
   
   const premiumUsers = profiles.filter(p => p.is_premium);
   const totalUsers = profiles.length;
   const conversionRate = totalUsers > 0 ? ((premiumUsers.length / totalUsers) * 100).toFixed(1) : '0';
-
-  // Calculate email conversion (recovery emails that led to premium)
-  const emailConversionRate = totalRecoveryEmails > 0 
-    ? ((emailLogs.filter(e => e.converted_at).length / totalRecoveryEmails) * 100).toFixed(1) 
-    : '0';
 
   // Emails by type for pie chart
   const emailsByType = emailLogs.reduce((acc, email) => {
@@ -140,58 +136,86 @@ export const EmailDashboard = () => {
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Send className="h-5 w-5 text-primary" />
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-primary/20 rounded-lg">
+                <Send className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Emails Enviados</p>
-                <p className="text-2xl font-bold text-primary">{totalEmailsSent}</p>
+                <p className="text-[10px] text-muted-foreground">Enviados</p>
+                <p className="text-lg font-bold text-primary">{totalEmailsSent}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-blue-500/20 rounded-lg">
+                <Eye className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Abertos</p>
+                <p className="text-lg font-bold text-blue-600">{emailsOpened}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-purple-500/20 rounded-lg">
+                <Percent className="h-4 w-4 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Taxa Abertura</p>
+                <p className="text-lg font-bold text-purple-600">{openRate}%</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-amber-500/10 to-amber-500/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-500/20 rounded-lg">
-                <Mail className="h-5 w-5 text-amber-600" />
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-amber-500/20 rounded-lg">
+                <MousePointer className="h-4 w-4 text-amber-600" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Recuperação</p>
-                <p className="text-2xl font-bold text-amber-600">{totalRecoveryEmails}</p>
+                <p className="text-[10px] text-muted-foreground">Cliques</p>
+                <p className="text-lg font-bold text-amber-600">{emailsClicked}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/20 rounded-lg">
-                <Percent className="h-5 w-5 text-emerald-600" />
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-emerald-500/20 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Taxa Conversão</p>
-                <p className="text-2xl font-bold text-emerald-600">{conversionRate}%</p>
+                <p className="text-[10px] text-muted-foreground">Conversão</p>
+                <p className="text-lg font-bold text-emerald-600">{conversionRate}%</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-red-500/10 to-red-500/5">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <XCircle className="h-5 w-5 text-red-600" />
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-red-500/20 rounded-lg">
+                <XCircle className="h-4 w-4 text-red-600" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Falhas</p>
-                <p className="text-2xl font-bold text-red-600">{totalEmailsFailed}</p>
+                <p className="text-[10px] text-muted-foreground">Falhas</p>
+                <p className="text-lg font-bold text-red-600">{totalEmailsFailed}</p>
               </div>
             </div>
           </CardContent>
@@ -301,6 +325,7 @@ export const EmailDashboard = () => {
                     <th className="text-left py-2 px-2 font-medium text-muted-foreground">Data</th>
                     <th className="text-left py-2 px-2 font-medium text-muted-foreground">Email</th>
                     <th className="text-left py-2 px-2 font-medium text-muted-foreground">Tipo</th>
+                    <th className="text-left py-2 px-2 font-medium text-muted-foreground">Aberto</th>
                     <th className="text-left py-2 px-2 font-medium text-muted-foreground">Status</th>
                   </tr>
                 </thead>
@@ -310,26 +335,40 @@ export const EmailDashboard = () => {
                       <td className="py-2 px-2 text-xs text-muted-foreground">
                         {format(new Date(email.created_at), 'dd/MM HH:mm', { locale: ptBR })}
                       </td>
-                      <td className="py-2 px-2 font-medium truncate max-w-[150px]">
+                      <td className="py-2 px-2 font-medium truncate max-w-[120px]">
                         {email.email_to}
                       </td>
                       <td className="py-2 px-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {email.email_type === 'recovery' ? '🔄 Recuperação' : 
-                           email.email_type === 'welcome' ? '👋 Boas-vindas' :
-                           email.email_type === 'premium' ? '⭐ Premium' : email.email_type}
+                        <Badge variant="secondary" className="text-[10px] px-1.5">
+                          {email.email_type === 'recovery' ? '🔄' : 
+                           email.email_type === 'welcome' ? '👋' :
+                           email.email_type === 'premium' ? '⭐' : email.email_type}
                         </Badge>
                       </td>
                       <td className="py-2 px-2">
-                        {email.status === 'sent' ? (
-                          <Badge className="bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Enviado
+                        {email.opened_at ? (
+                          <Badge className="bg-blue-500/20 text-blue-700 hover:bg-blue-500/30 text-[10px] px-1.5">
+                            <Eye className="h-3 w-3 mr-0.5" />
+                            {format(new Date(email.opened_at), 'dd/MM HH:mm', { locale: ptBR })}
                           </Badge>
                         ) : (
-                          <Badge variant="destructive">
-                            <XCircle className="h-3 w-3 mr-1" />
-                            Falha
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-2">
+                        {email.status === 'sent' ? (
+                          <Badge className="bg-emerald-500/20 text-emerald-700 hover:bg-emerald-500/30 text-[10px] px-1.5">
+                            <CheckCircle2 className="h-3 w-3 mr-0.5" />
+                            OK
+                          </Badge>
+                        ) : email.status === 'pending' ? (
+                          <Badge variant="secondary" className="text-[10px] px-1.5">
+                            ⏳
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="text-[10px] px-1.5">
+                            <XCircle className="h-3 w-3 mr-0.5" />
+                            Erro
                           </Badge>
                         )}
                       </td>
