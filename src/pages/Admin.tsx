@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3, LayoutDashboard, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NutricionistasManager from '@/components/admin/NutricionistasManager';
 import ConversionAnalytics from '@/components/admin/ConversionAnalytics';
 import MarketingDashboard from '@/components/admin/MarketingDashboard';
+import { EmailDashboard } from '@/components/admin/EmailDashboard';
 interface UserProfile {
   id: string;
   user_id: string;
@@ -178,6 +179,10 @@ const Admin = () => {
               <LayoutDashboard size={14} />
               Dashboard
             </TabsTrigger>
+            <TabsTrigger value="emails" className="flex-1 gap-1 text-xs px-2">
+              <Mail size={14} />
+              Emails
+            </TabsTrigger>
             <TabsTrigger value="users" className="flex-1 gap-1 text-xs px-2">
               <Users size={14} />
               Usuários
@@ -194,6 +199,10 @@ const Admin = () => {
 
           <TabsContent value="dashboard">
             <MarketingDashboard />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailDashboard />
           </TabsContent>
 
           <TabsContent value="users">

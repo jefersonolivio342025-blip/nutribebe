@@ -146,6 +146,8 @@ const handler = async (req: Request): Promise<Response> => {
     const email = userData.user.email;
     const name = payload.record.nome || "";
 
+    const emailSubject = "Quase tudo pronto para a IA do seu bebê! 🍎";
+
     // Send recovery email via Resend
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -156,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "NutriBebê Pro <onboarding@resend.dev>",
         to: [email],
-        subject: "Quase tudo pronto para a IA do seu bebê! 🍎",
+        subject: emailSubject,
         html: recoveryEmailTemplate(name),
       }),
     });
@@ -165,8 +167,28 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!response.ok) {
       console.error("Resend API error:", responseData);
+      
+      // Log failed email
+      await supabase.from("email_logs").insert({
+        user_id: payload.record.user_id,
+        email_to: email,
+        email_type: "recovery",
+        subject: emailSubject,
+        status: "failed",
+      });
+      
       throw new Error(responseData.message || "Failed to send email");
     }
+
+    // Log successful email
+    await supabase.from("email_logs").insert({
+      user_id: payload.record.user_id,
+      email_to: email,
+      email_type: "recovery",
+      subject: emailSubject,
+      status: "sent",
+      resend_id: responseData.id,
+    });
 
     console.log("Recovery email sent successfully to:", email);
 
