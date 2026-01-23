@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Send, CheckCircle2, XCircle, TrendingUp, Eye, MousePointer, Percent } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Mail, Send, CheckCircle2, XCircle, TrendingUp, Eye, MousePointer, Percent, Users, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { format, subDays, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -33,6 +35,8 @@ export const EmailDashboard = () => {
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingBulk, setSendingBulk] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchData();
@@ -63,6 +67,55 @@ export const EmailDashboard = () => {
       setLoading(false);
     }
   };
+
+  const handleSendBulkEmails = async () => {
+    setSendingBulk(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Você precisa estar logado",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("send-bulk-recovery-emails", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Emails enviados! 📧",
+        description: `${data.sent} enviados, ${data.skipped} já receberam, ${data.failed} falharam`,
+      });
+
+      // Refresh data
+      fetchData();
+    } catch (error) {
+      console.error("Bulk email error:", error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao enviar emails",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+      });
+    } finally {
+      setSendingBulk(false);
+    }
+  };
+
+  // Count non-premium users who haven't received recovery email
+  const nonPremiumUsers = profiles.filter(p => !p.is_premium);
+  const usersWithRecoveryEmail = new Set(
+    emailLogs.filter(e => e.email_type === 'recovery').map(e => e.email_to)
+  );
+  const pendingRecoveryCount = nonPremiumUsers.length - usersWithRecoveryEmail.size;
 
   // Calculate KPIs
   const totalEmailsSent = emailLogs.filter(e => e.status === 'sent').length;
@@ -135,6 +188,46 @@ export const EmailDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Bulk Send Action */}
+      {pendingRecoveryCount > 0 && (
+        <Card className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 rounded-lg">
+                  <Users className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-amber-800">
+                    {pendingRecoveryCount} usuário{pendingRecoveryCount !== 1 ? 's' : ''} não-premium sem email de recuperação
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    Envie o email de recuperação para aumentar conversões
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleSendBulkEmails}
+                disabled={sendingBulk}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                {sendingBulk ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Enviar para Todos
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
