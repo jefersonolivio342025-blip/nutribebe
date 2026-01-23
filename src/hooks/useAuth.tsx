@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    // Se o signup foi bem-sucedido, atualiza o perfil com os UTMs
+    // Se o signup foi bem-sucedido, atualiza o perfil com os UTMs e envia email de boas-vindas
     if (!error && data.user) {
       const utmParams = getStoredUTMParams();
       const hasUTMs = Object.values(utmParams).some(v => v !== null);
@@ -125,6 +125,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           clearStoredUTMParams();
         }, 1000);
+      }
+
+      // Envia email de boas-vindas
+      try {
+        await supabase.functions.invoke("send-email", {
+          body: {
+            to: email,
+            template: "welcome",
+            data: { name: nome },
+          },
+        });
+      } catch (emailError) {
+        console.error("Error sending welcome email:", emailError);
+        // Não bloqueia o cadastro se o email falhar
       }
     }
 
