@@ -59,7 +59,7 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
         description: 'Libere seu acesso para baixar a lista em PDF!',
         action: {
           label: 'Liberar Acesso',
-          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxfv', '_blank'),
+          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxFv', '_blank'),
         },
       });
       return;
@@ -153,7 +153,7 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
         description: 'Libere seu acesso para compartilhar a lista!',
         action: {
           label: 'Liberar Acesso',
-          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxfv', '_blank'),
+          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxFv', '_blank'),
         },
       });
       return;
