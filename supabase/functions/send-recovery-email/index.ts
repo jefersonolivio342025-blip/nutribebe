@@ -11,6 +11,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const KIWIFY_CHECKOUT_URL = "https://pay.kiwify.com.br/vrYjxFv";
+const FROM_EMAIL = "suporte@nutribebe.elitecompras.shop";
+const EMAIL_SUBJECT = "Libere seu acesso ao NutriBebê Pro 🍼";
 
 interface ProfilePayload {
   type: "INSERT";
@@ -43,33 +45,32 @@ const recoveryEmailTemplate = (name: string, trackingPixelUrl: string, ctaUrl: s
       <!-- Content -->
       <div style="background: white; padding: 40px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         <h2 style="color: #166534; margin: 0 0 20px 0; font-size: 24px;">
-          Quase tudo pronto${name ? `, ${name}` : ''}! 🎉
+          Olá${name ? `, ${name}` : ''}! 👋
         </h2>
         
         <p style="color: #374151; line-height: 1.7; margin: 0 0 20px 0; font-size: 16px;">
-          Olá! Vi que você criou sua conta no <strong>NutriBebê Pro</strong>. 
+          Vi que você começou seu cadastro no <strong>NutriBebê Pro</strong>.
         </p>
         
         <p style="color: #374151; line-height: 1.7; margin: 0 0 25px 0; font-size: 16px;">
-          Para liberar seu <strong>cardápio personalizado com IA</strong> e o <strong>Guia de Cortes Seguros</strong> por apenas <span style="color: #16a34a; font-weight: bold; font-size: 18px;">R$ 9,90</span>, finalize sua assinatura no link abaixo:
+          Para ter acesso ilimitado aos cardápios, guias de cortes seguros e suporte especializado por apenas <span style="color: #16a34a; font-weight: bold; font-size: 18px;">R$ 29,90</span>, clique no botão abaixo e finalize sua assinatura.
         </p>
         
         <!-- Benefits Box -->
         <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 20px; margin: 0 0 30px 0; border-left: 4px solid #22c55e;">
           <p style="color: #166534; font-weight: 600; margin: 0 0 12px 0; font-size: 15px;">✨ O que você vai desbloquear:</p>
           <ul style="color: #374151; line-height: 1.8; padding-left: 20px; margin: 0; font-size: 14px;">
-            <li>🤖 Cardápios semanais gerados por IA</li>
+            <li>🤖 Cardápios semanais ilimitados</li>
+            <li>✂️ Guias de cortes seguros por fase</li>
             <li>🍎 Receitas nutritivas adaptadas à idade</li>
-            <li>✂️ Guia de Cortes Seguros por fase</li>
-            <li>🛒 Lista de compras automática</li>
-            <li>👩‍⚕️ Diretório de nutricionistas</li>
+            <li>👩‍⚕️ Suporte especializado</li>
           </ul>
         </div>
         
-        <!-- CTA Button with click tracking -->
+        <!-- CTA Button -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); transition: transform 0.2s;">
-            🚀 Liberar Acesso Agora
+          <a href="${ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); text-transform: uppercase; letter-spacing: 0.5px;">
+            ASSINAR POR R$ 29,90
           </a>
         </div>
         
@@ -148,7 +149,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const email = userData.user.email;
     const name = payload.record.nome || "";
-    const emailSubject = "Quase tudo pronto para a IA do seu bebê! 🍎";
 
     // First, create the email log to get the ID for tracking
     const { data: emailLog, error: logError } = await supabase
@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
         user_id: payload.record.user_id,
         email_to: email,
         email_type: "recovery",
-        subject: emailSubject,
+        subject: EMAIL_SUBJECT,
         status: "pending",
       })
       .select("id")
@@ -186,9 +186,9 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "NutriBebê Pro <onboarding@resend.dev>",
+        from: `NutriBebê Pro <${FROM_EMAIL}>`,
         to: [email],
-        subject: emailSubject,
+        subject: EMAIL_SUBJECT,
         html: recoveryEmailTemplate(name, trackingPixelUrl, KIWIFY_CHECKOUT_URL),
       }),
     });
