@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import babyImage from '@/assets/baby-eating.png';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,6 +15,7 @@ declare global {
 
 const emailSchema = z.string().email('Email inválido');
 const passwordSchema = z.string().min(6, 'Senha deve ter no mínimo 6 caracteres');
+const whatsappSchema = z.string().min(14, 'WhatsApp inválido').max(15, 'WhatsApp inválido');
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -63,9 +64,10 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string }>({});
+  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean; whatsapp?: boolean }>({});
 
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +105,42 @@ const Auth = () => {
     }
   };
 
+  // Real-time whatsapp validation
+  const validateWhatsapp = (value: string) => {
+    if (!touched.whatsapp) return;
+    try {
+      whatsappSchema.parse(value);
+      setErrors(prev => ({ ...prev, whatsapp: undefined }));
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, whatsapp: e.errors[0].message }));
+      }
+    }
+  };
+
+  // Format WhatsApp with Brazilian mask (00) 00000-0000
+  const formatWhatsapp = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) {
+      return numbers.length > 0 ? `(${numbers}` : '';
+    }
+    if (numbers.length <= 7) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    }
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatWhatsapp(e.target.value);
+    setWhatsapp(formatted);
+    validateWhatsapp(formatted);
+  };
+
+  const handleWhatsappBlur = () => {
+    setTouched(prev => ({ ...prev, whatsapp: true }));
+    validateWhatsapp(whatsapp);
+  };
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
@@ -126,7 +164,7 @@ const Auth = () => {
   };
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; whatsapp?: string } = {};
 
     try {
       emailSchema.parse(email);
@@ -144,7 +182,18 @@ const Auth = () => {
       }
     }
 
-    setTouched({ email: true, password: true });
+    // Validate WhatsApp only on signup
+    if (!isLogin) {
+      try {
+        whatsappSchema.parse(whatsapp);
+      } catch (e) {
+        if (e instanceof z.ZodError) {
+          newErrors.whatsapp = e.errors[0].message;
+        }
+      }
+    }
+
+    setTouched({ email: true, password: true, whatsapp: !isLogin });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -181,7 +230,9 @@ const Auth = () => {
           navigate('/');
         }
       } else {
-        const { error } = await signUp(email, password, nome);
+        // Clean WhatsApp number before sending (remove formatting)
+        const cleanWhatsapp = whatsapp.replace(/\D/g, '');
+        const { error } = await signUp(email, password, nome, cleanWhatsapp);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
@@ -355,6 +406,53 @@ const Auth = () => {
                       className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 border-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-primary/50 outline-none transition-all duration-300"
                     />
                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              {!isLogin && (
+                <motion.div
+                  key="whatsapp-field"
+                  variants={formFieldVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    WhatsApp
+                  </label>
+                  <div className="relative group">
+                    <Phone
+                      size={18}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
+                    />
+                    <input
+                      type="tel"
+                      value={whatsapp}
+                      onChange={handleWhatsappChange}
+                      onBlur={handleWhatsappBlur}
+                      placeholder="(00) 00000-0000"
+                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
+                        errors.whatsapp ? 'border-destructive' : touched.whatsapp && !errors.whatsapp ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
+                      }`}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Usaremos para enviar seu guia e suporte nutricional
+                  </p>
+                  <AnimatePresence>
+                    {errors.whatsapp && (
+                      <motion.p 
+                        className="text-xs text-destructive mt-1"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                      >
+                        {errors.whatsapp}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
             </AnimatePresence>
