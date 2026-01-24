@@ -11,17 +11,18 @@ declare global {
 interface TrackConversionParams {
   sourcePage: string;
   buttonText?: string;
+  eventType?: string;
 }
 
 export const useConversionTracking = () => {
   const { user, isPremium } = useAuth();
 
-  const trackConversionClick = useCallback(async ({ sourcePage, buttonText }: TrackConversionParams) => {
+  const trackConversionClick = useCallback(async ({ sourcePage, buttonText, eventType }: TrackConversionParams) => {
     try {
       // Track in Supabase
       await supabase.from('conversion_events').insert({
         user_id: user?.id || null,
-        event_type: 'paywall_click',
+        event_type: eventType || 'paywall_click',
         source_page: sourcePage,
         button_text: buttonText || 'Liberar Acesso Vitalício',
         user_agent: navigator.userAgent,
