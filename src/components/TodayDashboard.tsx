@@ -3,6 +3,7 @@ import { DayMenu } from '@/data/menuData';
 import MealCard from './MealCard';
 import { useConversionTracking, useViewContentTracking } from '@/hooks/useConversionTracking';
 import PWAInstallBanner from './PWAInstallBanner';
+import ProOfferBanner from './ProOfferBanner';
 
 interface TodayDashboardProps {
   todayMenu: DayMenu | null;
@@ -32,6 +33,9 @@ const TodayDashboard = ({ todayMenu, onGenerate, isLocked, isLoadingAlimentos }:
     <div className="page-container">
       {/* PWA Install Banner */}
       <PWAInstallBanner />
+
+      {/* Pro Offer Banner - only for non-premium users */}
+      {isLocked && <ProOfferBanner />}
 
       {/* Header */}
       <header className="mb-6">

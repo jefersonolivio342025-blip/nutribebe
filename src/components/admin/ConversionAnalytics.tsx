@@ -94,6 +94,7 @@ const ConversionAnalytics = () => {
     profile_page: 'Perfil',
     nutritionists_page: 'Nutricionistas',
     safety_guide_modal: 'Guia de Segurança',
+    dashboard: 'Banner Oferta',
   };
 
   if (isLoading) {
