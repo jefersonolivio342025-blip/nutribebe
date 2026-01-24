@@ -231,6 +231,7 @@ export type Database = {
           utm_medium: string | null
           utm_source: string | null
           vegano: boolean
+          whatsapp: string | null
         }
         Insert: {
           aplv?: boolean
@@ -249,6 +250,7 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           vegano?: boolean
+          whatsapp?: string | null
         }
         Update: {
           aplv?: boolean
@@ -267,6 +269,7 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           vegano?: boolean
+          whatsapp?: string | null
         }
         Relationships: []
       }

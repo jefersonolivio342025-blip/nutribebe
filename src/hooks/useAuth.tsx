@@ -14,6 +14,7 @@ interface Profile {
   vegano: boolean;
   baby_name: string | null;
   baby_birth_date: string | null;
+  whatsapp: string | null;
 }
 
 interface AuthContextType {
@@ -22,7 +23,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   isPremium: boolean;
-  signUp: (email: string, password: string, nome?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, nome?: string, whatsapp?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -93,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, nome?: string) => {
+  const signUp = async (email: string, password: string, nome?: string, whatsapp?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
     const { data, error } = await supabase.auth.signUp({
@@ -105,28 +106,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    // Se o signup foi bem-sucedido, atualiza o perfil com os UTMs
+    // Se o signup foi bem-sucedido, atualiza o perfil com os UTMs e WhatsApp
     // O email de recuperação é enviado automaticamente pelo trigger do banco
     if (!error && data.user) {
       const utmParams = getStoredUTMParams();
       const hasUTMs = Object.values(utmParams).some(v => v !== null);
       
-      if (hasUTMs) {
-        // Aguarda um pouco para garantir que o trigger criou o perfil
-        setTimeout(async () => {
+      // Aguarda um pouco para garantir que o trigger criou o perfil
+      setTimeout(async () => {
+        const updateData: Record<string, string | null> = {};
+        
+        if (whatsapp) {
+          updateData.whatsapp = whatsapp;
+        }
+        
+        if (hasUTMs) {
+          updateData.utm_source = utmParams.utm_source;
+          updateData.utm_medium = utmParams.utm_medium;
+          updateData.utm_campaign = utmParams.utm_campaign;
+          updateData.utm_content = utmParams.utm_content;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
           await supabase
             .from('profiles')
-            .update({
-              utm_source: utmParams.utm_source,
-              utm_medium: utmParams.utm_medium,
-              utm_campaign: utmParams.utm_campaign,
-              utm_content: utmParams.utm_content,
-            })
+            .update(updateData)
             .eq('user_id', data.user!.id);
           
-          clearStoredUTMParams();
-        }, 1000);
-      }
+          if (hasUTMs) {
+            clearStoredUTMParams();
+          }
+        }
+      }, 1000);
     }
 
     return { error };
