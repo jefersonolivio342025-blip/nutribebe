@@ -208,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "NutriBebê <onboarding@resend.dev>",
+        from: "NutriBebê <suporte@nutribebe.elitecompras.shop>",
         to: [to],
         subject: subject || emailContent.subject,
         html: emailContent.html,
