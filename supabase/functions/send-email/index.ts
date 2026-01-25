@@ -19,7 +19,7 @@ interface EmailRequest {
 
 const templates = {
   welcome: (name: string) => ({
-    subject: "Bem-vindo ao NutriBebê! 🍼",
+    subject: "Seu Guia Gratuito chegou! 🍼 + Oferta Especial",
     html: `
       <!DOCTYPE html>
       <html>
@@ -36,22 +36,39 @@ const templates = {
             <div style="background: white; padding: 40px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <h2 style="color: #166534; margin: 0 0 20px 0;">Olá${name ? `, ${name}` : ''}! 👋</h2>
               <p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
-                Seja muito bem-vindo(a) ao NutriBebê! Estamos muito felizes em ter você conosco nessa jornada de alimentação saudável para o seu bebê.
+                Seja muito bem-vindo(a) ao NutriBebê! Seu guia gratuito já está disponível para download.
               </p>
-              <p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
-                Com o NutriBebê, você terá acesso a:
-              </p>
-              <ul style="color: #374151; line-height: 1.8; padding-left: 20px; margin: 0 0 20px 0;">
-                <li>Cardápios semanais personalizados</li>
-                <li>Receitas nutritivas e deliciosas</li>
-                <li>Guia completo de introdução alimentar</li>
-                <li>Lista de compras automática</li>
-              </ul>
+              
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://nutribebe.lovable.app" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                  Acessar o App
+                <a href="https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                  📖 Baixar Guia Grátis
                 </a>
               </div>
+              
+              <div style="background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%); border-radius: 12px; padding: 24px; margin: 30px 0; text-align: center;">
+                <h3 style="color: white; margin: 0 0 10px 0; font-size: 20px;">🎁 Oferta Especial de Boas-Vindas!</h3>
+                <p style="color: rgba(255,255,255,0.95); margin: 0 0 16px 0; font-size: 15px;">
+                  Desbloqueie o acesso completo ao NutriBebê Premium por apenas:
+                </p>
+                <p style="color: white; font-size: 32px; font-weight: bold; margin: 0 0 16px 0;">
+                  R$ 29,90
+                </p>
+                <a href="https://pay.kiwify.com.br/vrYjxFv" style="display: inline-block; background: white; color: #c2410c; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 16px;">
+                  Quero Acesso Completo →
+                </a>
+              </div>
+              
+              <p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+                Com o NutriBebê Premium, você terá acesso a:
+              </p>
+              <ul style="color: #374151; line-height: 1.8; padding-left: 20px; margin: 0 0 20px 0;">
+                <li>✅ Cardápios semanais ilimitados</li>
+                <li>✅ Receitas nutritivas e deliciosas</li>
+                <li>✅ Guia completo de introdução alimentar</li>
+                <li>✅ Lista de compras automática</li>
+                <li>✅ Suporte nutricional via WhatsApp</li>
+              </ul>
+              
               <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 20px 0 0 0; text-align: center;">
                 Dúvidas? Responda este e-mail que teremos prazer em ajudar! 💚
               </p>
