@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, Phone } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, Phone, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import babyImage from '@/assets/baby-eating.png';
 import { useAuth } from '@/hooks/useAuth';
@@ -582,14 +582,17 @@ const Auth = () => {
             </motion.button>
 
             {!isLogin && (
-              <motion.p
-                className="text-xs text-muted-foreground text-center mt-3"
+              <motion.div
+                className="flex items-center justify-center gap-1.5 mt-3"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7 }}
               >
-                Seus dados estão seguros. O acesso ao guia é imediato após o cadastro.
-              </motion.p>
+                <Shield size={14} className="text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">
+                  Seus dados estão seguros. O acesso ao guia é imediato após o cadastro.
+                </p>
+              </motion.div>
             )}
           </form>
         </motion.div>
