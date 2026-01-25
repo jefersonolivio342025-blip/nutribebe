@@ -252,10 +252,33 @@ const Auth = () => {
           if (typeof window.fbq === 'function') {
             window.fbq('track', 'CompleteRegistration');
           }
+          // Track Facebook Pixel Lead event for funnel
+          if (typeof window.fbq === 'function') {
+            window.fbq('track', 'Lead');
+          }
+          
           toast({
             title: 'Conta criada! 🎉',
-            description: 'Bem-vindo ao NutriBebê',
+            description: 'Bem-vindo ao NutriBebê! Seu guia gratuito está abrindo...',
           });
+          
+          // Open the free ebook in a new tab
+          window.open('https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link', '_blank');
+          
+          // Send welcome email with Kiwify link via edge function
+          try {
+            const { supabase } = await import('@/integrations/supabase/client');
+            await supabase.functions.invoke('send-email', {
+              body: {
+                to: email,
+                template: 'welcome',
+                data: { name: nome || undefined }
+              }
+            });
+          } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+          }
+          
           navigate('/');
         }
       }
@@ -376,7 +399,7 @@ const Auth = () => {
                 !isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'
               }`}
             >
-              Cadastrar
+              Guia Grátis
             </button>
           </div>
 
@@ -547,7 +570,7 @@ const Auth = () => {
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
-                  <span>{isLogin ? 'Entrar' : 'Criar Conta'}</span>
+                  <span>{isLogin ? 'Entrar' : 'Baixar Guia Grátis'}</span>
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
