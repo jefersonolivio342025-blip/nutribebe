@@ -580,6 +580,17 @@ const Auth = () => {
                 </>
               )}
             </motion.button>
+
+            {!isLogin && (
+              <motion.p
+                className="text-xs text-muted-foreground text-center mt-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+              >
+                Seus dados estão seguros. O acesso ao guia é imediato após o cadastro.
+              </motion.p>
+            )}
           </form>
         </motion.div>
       </main>
