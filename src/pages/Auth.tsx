@@ -105,7 +105,7 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      // Clean WhatsApp number before sending (remove formatting)
+      // Step 1: Clean WhatsApp number and prepare data
       const cleanWhatsapp = whatsapp.replace(/\D/g, '');
 
       // Get UTM params from sessionStorage
@@ -114,7 +114,7 @@ const Auth = () => {
       const utmCampaign = sessionStorage.getItem('utm_campaign');
       const utmContent = sessionStorage.getItem('utm_content');
 
-      // Insert lead into database
+      // Step 2: Save data to leads table
       const { error } = await supabase.from('leads').insert({
         nome: nome || null,
         whatsapp: cleanWhatsapp,
@@ -130,22 +130,32 @@ const Auth = () => {
           title: 'Erro',
           description: 'Não foi possível processar. Tente novamente.',
         });
+        setIsSubmitting(false);
         return;
       }
 
-      // Track Facebook Pixel Lead event
+      // Step 3: Fire Facebook Pixel Lead event immediately after successful save
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'Lead');
       }
 
+      // Step 4: Small delay (500ms) to ensure Pixel data is sent before page change
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Step 5: Show success feedback
       toast({
         title: 'Sucesso! 🎉',
         description: 'Seu guia está abrindo...',
       });
 
-      // Redirect to ebook
+      // Step 6: Redirect to ebook
       window.location.href = 'https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link';
-    } finally {
+    } catch (err) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Ocorreu um erro. Tente novamente.',
+      });
       setIsSubmitting(false);
     }
   };
@@ -304,7 +314,10 @@ const Auth = () => {
               transition={{ delay: 0.5 }}
             >
               {isSubmitting ? (
-                <Loader2 size={20} className="animate-spin" />
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Gerando seu guia...</span>
+                </>
               ) : (
                 <>
                   <span>Baixar Guia Grátis</span>
