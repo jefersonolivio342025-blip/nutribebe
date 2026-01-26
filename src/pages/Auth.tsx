@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, Phone, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, User, ArrowRight, Loader2, Sparkles, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import babyImage from '@/assets/baby-eating.png';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
 declare global {
@@ -13,8 +12,6 @@ declare global {
   }
 }
 
-const emailSchema = z.string().email('Email inválido');
-const passwordSchema = z.string().min(6, 'Senha deve ter no mínimo 6 caracteres');
 const whatsappSchema = z.string().min(14, 'WhatsApp inválido').max(15, 'WhatsApp inválido');
 
 const containerVariants = {
@@ -28,18 +25,6 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94] as const
-    }
-  }
-};
-
 const formFieldVariants = {
   hidden: { opacity: 0, x: -20 },
   visible: {
@@ -49,74 +34,17 @@ const formFieldVariants = {
       duration: 0.4,
       ease: [0.25, 0.46, 0.45, 0.94] as const
     }
-  },
-  exit: {
-    opacity: 0,
-    x: 20,
-    transition: {
-      duration: 0.3
-    }
   }
 };
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; whatsapp?: string }>({});
-  const [touched, setTouched] = useState<{ email?: boolean; password?: boolean; whatsapp?: boolean }>({});
+  const [errors, setErrors] = useState<{ whatsapp?: string }>({});
+  const [touched, setTouched] = useState<{ whatsapp?: boolean }>({});
 
-  const { signIn, signUp, user, loading } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/');
-    }
-  }, [user, loading, navigate]);
-
-  // Real-time email validation
-  const validateEmail = (value: string) => {
-    if (!touched.email) return;
-    try {
-      emailSchema.parse(value);
-      setErrors(prev => ({ ...prev, email: undefined }));
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        setErrors(prev => ({ ...prev, email: e.errors[0].message }));
-      }
-    }
-  };
-
-  // Real-time password validation
-  const validatePassword = (value: string) => {
-    if (!touched.password) return;
-    try {
-      passwordSchema.parse(value);
-      setErrors(prev => ({ ...prev, password: undefined }));
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        setErrors(prev => ({ ...prev, password: e.errors[0].message }));
-      }
-    }
-  };
-
-  // Real-time whatsapp validation
-  const validateWhatsapp = (value: string) => {
-    if (!touched.whatsapp) return;
-    try {
-      whatsappSchema.parse(value);
-      setErrors(prev => ({ ...prev, whatsapp: undefined }));
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        setErrors(prev => ({ ...prev, whatsapp: e.errors[0].message }));
-      }
-    }
-  };
 
   // Format WhatsApp with Brazilian mask (00) 00000-0000
   const formatWhatsapp = (value: string) => {
@@ -130,6 +58,18 @@ const Auth = () => {
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
   };
 
+  const validateWhatsapp = (value: string) => {
+    if (!touched.whatsapp) return;
+    try {
+      whatsappSchema.parse(value);
+      setErrors(prev => ({ ...prev, whatsapp: undefined }));
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, whatsapp: e.errors[0].message }));
+      }
+    }
+  };
+
   const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatWhatsapp(e.target.value);
     setWhatsapp(formatted);
@@ -141,59 +81,18 @@ const Auth = () => {
     validateWhatsapp(whatsapp);
   };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    validateEmail(value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    validatePassword(value);
-  };
-
-  const handleEmailBlur = () => {
-    setTouched(prev => ({ ...prev, email: true }));
-    validateEmail(email);
-  };
-
-  const handlePasswordBlur = () => {
-    setTouched(prev => ({ ...prev, password: true }));
-    validatePassword(password);
-  };
-
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; whatsapp?: string } = {};
+    const newErrors: { whatsapp?: string } = {};
 
     try {
-      emailSchema.parse(email);
+      whatsappSchema.parse(whatsapp);
     } catch (e) {
       if (e instanceof z.ZodError) {
-        newErrors.email = e.errors[0].message;
+        newErrors.whatsapp = e.errors[0].message;
       }
     }
 
-    try {
-      passwordSchema.parse(password);
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        newErrors.password = e.errors[0].message;
-      }
-    }
-
-    // Validate WhatsApp only on signup
-    if (!isLogin) {
-      try {
-        whatsappSchema.parse(whatsapp);
-      } catch (e) {
-        if (e instanceof z.ZodError) {
-          newErrors.whatsapp = e.errors[0].message;
-        }
-      }
-    }
-
-    setTouched({ email: true, password: true, whatsapp: !isLogin });
+    setTouched({ whatsapp: true });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -206,100 +105,50 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({
-              variant: 'destructive',
-              title: 'Erro ao entrar',
-              description: 'Email ou senha incorretos',
-            });
-          } else {
-            toast({
-              variant: 'destructive',
-              title: 'Erro ao entrar',
-              description: error.message,
-            });
-          }
-        } else {
-          toast({
-            title: 'Bem-vindo! 👶',
-            description: 'Login realizado com sucesso',
-          });
-          navigate('/');
-        }
-      } else {
-        // Clean WhatsApp number before sending (remove formatting)
-        const cleanWhatsapp = whatsapp.replace(/\D/g, '');
-        const { error } = await signUp(email, password, nome, cleanWhatsapp);
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast({
-              variant: 'destructive',
-              title: 'Erro ao cadastrar',
-              description: 'Este email já está cadastrado',
-            });
-          } else {
-            toast({
-              variant: 'destructive',
-              title: 'Erro ao cadastrar',
-              description: error.message,
-            });
-          }
-        } else {
-          // Track Facebook Pixel CompleteRegistration event
-          if (typeof window.fbq === 'function') {
-            window.fbq('track', 'CompleteRegistration');
-          }
-          // Track Facebook Pixel Lead event for funnel
-          if (typeof window.fbq === 'function') {
-            window.fbq('track', 'Lead');
-          }
-          
-          toast({
-            title: 'Conta criada! 🎉',
-            description: 'Bem-vindo ao NutriBebê! Seu guia gratuito está abrindo...',
-          });
-          
-          // Open the free ebook in a new tab
-          window.open('https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link', '_blank');
-          
-          // Send welcome email with Kiwify link via edge function
-          try {
-            const { supabase } = await import('@/integrations/supabase/client');
-            await supabase.functions.invoke('send-email', {
-              body: {
-                to: email,
-                template: 'welcome',
-                data: { name: nome || undefined }
-              }
-            });
-          } catch (emailError) {
-            console.error('Failed to send welcome email:', emailError);
-          }
-          
-          navigate('/');
-        }
+      // Clean WhatsApp number before sending (remove formatting)
+      const cleanWhatsapp = whatsapp.replace(/\D/g, '');
+
+      // Get UTM params from sessionStorage
+      const utmSource = sessionStorage.getItem('utm_source');
+      const utmMedium = sessionStorage.getItem('utm_medium');
+      const utmCampaign = sessionStorage.getItem('utm_campaign');
+      const utmContent = sessionStorage.getItem('utm_content');
+
+      // Insert lead into database
+      const { error } = await supabase.from('leads').insert({
+        nome: nome || null,
+        whatsapp: cleanWhatsapp,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_content: utmContent
+      });
+
+      if (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: 'Não foi possível processar. Tente novamente.',
+        });
+        return;
       }
+
+      // Track Facebook Pixel Lead event
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'Lead');
+      }
+
+      toast({
+        title: 'Sucesso! 🎉',
+        description: 'Seu guia está abrindo...',
+      });
+
+      // Redirect to ebook
+      window.location.href = 'https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link';
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-hidden">
@@ -356,17 +205,9 @@ const Auth = () => {
           </h1>
           <Sparkles className="w-5 h-5 text-primary" />
         </motion.div>
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="text-muted-foreground mt-2 text-base"
-        >
-          Alimentação saudável para o seu bebê
-        </motion.p>
       </motion.header>
 
-      {/* Form */}
+      {/* Main Content */}
       <main className="flex-1 px-6 py-6 relative z-10">
         <motion.div 
           className="card-elevated max-w-sm mx-auto backdrop-blur-sm bg-card/95"
@@ -374,183 +215,79 @@ const Auth = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          {/* Tabs */}
-          <div className="flex rounded-xl bg-secondary p-1.5 mb-6 relative">
-            <motion.div 
-              className="absolute inset-y-1.5 rounded-lg bg-card shadow-soft"
-              initial={false}
-              animate={{ 
-                x: isLogin ? 4 : '100%',
-                width: 'calc(50% - 8px)'
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors relative z-10 ${
-                isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'
-              }`}
-            >
-              Entrar
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-colors relative z-10 ${
-                !isLogin ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/70'
-              }`}
-            >
-              Guia Grátis
-            </button>
-          </div>
+          {/* Hero Title */}
+          <motion.h2
+            className="text-xl font-bold text-center text-foreground mb-6 leading-tight"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            Garanta o{' '}
+            <span className="text-primary">Guia de Cortes Seguros</span>{' '}
+            e Evite Engasgos
+          </motion.h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <AnimatePresence mode="wait">
-              {!isLogin && (
-                <motion.div
-                  key="nome-field"
-                  variants={formFieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Nome do bebê
-                  </label>
-                  <div className="relative group">
-                    <User
-                      size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
-                    />
-                    <input
-                      type="text"
-                      value={nome}
-                      onChange={(e) => setNome(e.target.value)}
-                      placeholder="Ex: Maria"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 border-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-primary/50 outline-none transition-all duration-300"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence mode="wait">
-              {!isLogin && (
-                <motion.div
-                  key="whatsapp-field"
-                  variants={formFieldVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    WhatsApp
-                  </label>
-                  <div className="relative group">
-                    <Phone
-                      size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
-                    />
-                    <input
-                      type="tel"
-                      value={whatsapp}
-                      onChange={handleWhatsappChange}
-                      onBlur={handleWhatsappBlur}
-                      placeholder="(00) 00000-0000"
-                      className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
-                        errors.whatsapp ? 'border-destructive' : touched.whatsapp && !errors.whatsapp ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
-                      }`}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    Usaremos para enviar seu guia e suporte nutricional
-                  </p>
-                  <AnimatePresence>
-                    {errors.whatsapp && (
-                      <motion.p 
-                        className="text-xs text-destructive mt-1"
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                      >
-                        {errors.whatsapp}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              variants={formFieldVariants}
+              initial="hidden"
+              animate="visible"
             >
               <label className="text-sm font-medium text-foreground mb-2 block">
-                Email
+                Nome do bebê
               </label>
               <div className="relative group">
-                <Mail
+                <User
                   size={18}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
                 />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  onBlur={handleEmailBlur}
-                  placeholder="seu@email.com"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
-                    errors.email ? 'border-destructive' : touched.email && !errors.email ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
-                  }`}
+                  type="text"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Ex: Maria"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 border-transparent text-foreground placeholder:text-muted-foreground focus:ring-0 focus:border-primary/50 outline-none transition-all duration-300"
                 />
               </div>
-              <AnimatePresence>
-                {errors.email && (
-                  <motion.p 
-                    className="text-xs text-destructive mt-1"
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                  >
-                    {errors.email}
-                  </motion.p>
-                )}
-              </AnimatePresence>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              variants={formFieldVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 0.1 }}
             >
               <label className="text-sm font-medium text-foreground mb-2 block">
-                Senha
+                WhatsApp <span className="text-destructive">*</span>
               </label>
               <div className="relative group">
-                <Lock
+                <Phone
                   size={18}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary"
                 />
                 <input
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  onBlur={handlePasswordBlur}
-                  placeholder="••••••"
+                  type="tel"
+                  value={whatsapp}
+                  onChange={handleWhatsappChange}
+                  onBlur={handleWhatsappBlur}
+                  placeholder="(00) 00000-0000"
                   className={`w-full pl-10 pr-4 py-3 rounded-xl bg-secondary border-2 text-foreground placeholder:text-muted-foreground focus:ring-0 outline-none transition-all duration-300 ${
-                    errors.password ? 'border-destructive' : touched.password && !errors.password ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
+                    errors.whatsapp ? 'border-destructive' : touched.whatsapp && !errors.whatsapp ? 'border-primary/50' : 'border-transparent focus:border-primary/50'
                   }`}
                 />
               </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Enviaremos o guia e dicas de alimentação por aqui
+              </p>
               <AnimatePresence>
-                {errors.password && (
+                {errors.whatsapp && (
                   <motion.p 
                     className="text-xs text-destructive mt-1"
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                   >
-                    {errors.password}
+                    {errors.whatsapp}
                   </motion.p>
                 )}
               </AnimatePresence>
@@ -564,13 +301,13 @@ const Auth = () => {
               whileTap={{ scale: 0.98 }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.5 }}
             >
               {isSubmitting ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
-                  <span>{isLogin ? 'Entrar' : 'Baixar Guia Grátis'}</span>
+                  <span>Baixar Guia Grátis</span>
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -581,19 +318,17 @@ const Auth = () => {
               )}
             </motion.button>
 
-            {!isLogin && (
-              <motion.div
-                className="flex items-center justify-center gap-1.5 mt-3"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
-                <Shield size={14} className="text-muted-foreground" />
-                <p className="text-xs text-muted-foreground">
-                  Seus dados estão seguros. O acesso ao guia é imediato após o cadastro.
-                </p>
-              </motion.div>
-            )}
+            <motion.div
+              className="flex items-center justify-center gap-1.5 mt-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Shield size={14} className="text-muted-foreground" />
+              <p className="text-xs text-muted-foreground">
+                Seus dados estão seguros. O acesso ao guia é imediato após o cadastro.
+              </p>
+            </motion.div>
           </form>
         </motion.div>
       </main>
@@ -603,7 +338,7 @@ const Auth = () => {
         className="p-6 text-center relative z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.7 }}
       >
         <p className="text-sm text-muted-foreground">
           NutriBebê v1.0 • Feito com 💚
