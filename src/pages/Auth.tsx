@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Phone, User, ArrowRight, Loader2, Sparkles, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import babyImage from '@/assets/baby-eating.png';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { z } from 'zod';
 
 declare global {
@@ -45,6 +47,32 @@ const Auth = () => {
   const [touched, setTouched] = useState<{ whatsapp?: boolean }>({});
 
   const { toast } = useToast();
+  const { user, profile, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect logic for existing users
+  useEffect(() => {
+    if (loading) return;
+
+    // Check if admin user is logged in - redirect to admin-leads
+    if (user && profile?.is_admin) {
+      navigate('/admin-leads');
+      return;
+    }
+
+    // Check if authenticated user (premium or not) - redirect to main app
+    if (user) {
+      navigate('/');
+      return;
+    }
+
+    // Check if lead is "logged in" via localStorage - redirect to lead dashboard
+    const storedLead = localStorage.getItem('nutribebe_lead');
+    if (storedLead) {
+      navigate('/dashboard-usuario');
+      return;
+    }
+  }, [user, profile, loading, navigate]);
 
   // Format WhatsApp with Brazilian mask (00) 00000-0000
   const formatWhatsapp = (value: string) => {
@@ -142,14 +170,21 @@ const Auth = () => {
       // Step 4: Small delay (500ms) to ensure Pixel data is sent before page change
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Step 5: Show success feedback
+      // Step 5: Save lead state to localStorage for "logged in" experience
+      localStorage.setItem('nutribebe_lead', JSON.stringify({
+        nome: nome || null,
+        whatsapp: cleanWhatsapp,
+        createdAt: new Date().toISOString(),
+      }));
+
+      // Step 6: Show success feedback
       toast({
         title: 'Sucesso! 🎉',
         description: 'Seu guia está abrindo...',
       });
 
-      // Step 6: Redirect to ebook
-      window.location.href = 'https://drive.google.com/file/d/1zLyhp8CXuQSXEgTOcs2coGMZq5BLrXqF/view?usp=drive_link';
+      // Step 7: Redirect to lead dashboard
+      window.location.href = '/dashboard-usuario';
     } catch (err) {
       toast({
         variant: 'destructive',
