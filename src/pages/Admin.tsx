@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3, LayoutDashboard, Mail, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Crown, Search, Loader2, Users, Stethoscope, BarChart3, LayoutDashboard, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NutricionistasManager from '@/components/admin/NutricionistasManager';
 import ConversionAnalytics from '@/components/admin/ConversionAnalytics';
@@ -163,7 +162,7 @@ const Admin = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <div className="flex-1">
+          <div>
             <h1 className="text-2xl font-extrabold text-foreground">
               Painel Admin 👑
             </h1>
@@ -171,14 +170,6 @@ const Admin = () => {
               Gerenciar usuários e nutricionistas
             </p>
           </div>
-          <Button
-            onClick={() => navigate('/admin-leads')}
-            variant="outline"
-            className="gap-2"
-          >
-            <ClipboardList size={18} />
-            <span className="hidden sm:inline">Leads</span>
-          </Button>
         </header>
 
         {/* Tabs */}
