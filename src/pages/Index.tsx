@@ -8,11 +8,13 @@ import ShoppingList from '@/components/ShoppingList';
 import ProfilePage from '@/components/ProfilePage';
 import NutritionistsPage from '@/components/NutritionistsPage';
 import OnboardingScreen from '@/components/OnboardingScreen';
+import FloatingSupportButton from '@/components/FloatingSupportButton';
 import { DayMenu } from '@/data/menuData';
 import { useAuth } from '@/hooks/useAuth';
 import { useGenerateMenu } from '@/hooks/useGenerateMenu';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useUTMCapture } from '@/hooks/useUTMCapture';
+import { getStoredLead } from '@/hooks/useLeadAuth';
 
 type NavTab = 'today' | 'calendar' | 'list' | 'nutris' | 'profile';
 
@@ -29,10 +31,21 @@ const Index = () => {
   // Captura parâmetros UTM da URL
   useUTMCapture();
 
-  // Redirect to auth if not logged in
+  // Redirect logic: check for lead or authenticated user
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
+    if (!loading) {
+      const lead = getStoredLead();
+      
+      // If user is a lead (not authenticated), redirect to dashboard-usuario
+      if (lead && !user) {
+        navigate('/dashboard-usuario');
+        return;
+      }
+      
+      // If no user and no lead, redirect to auth
+      if (!user && !lead) {
+        navigate('/auth');
+      }
     }
   }, [user, loading, navigate]);
 
@@ -114,6 +127,7 @@ const Index = () => {
       )}
       {renderContent()}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <FloatingSupportButton />
     </div>
   );
 };
