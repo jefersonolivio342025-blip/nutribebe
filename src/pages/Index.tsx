@@ -52,14 +52,18 @@ const Index = () => {
   const handleGenerate = () => {
     const newMenu = generateWeeklyMenu();
     if (newMenu.length > 0) {
-      // Usamos 'any' aqui para ignorar o erro de tipagem e garantir que o app rode
-      const enhancedMenu = newMenu.map((day: any) => ({
-        ...day,
-        // Ajustamos para o formato que o seu TodayDashboard espera receber
-        lancheManha: manualRecipes.manha,
-        lancheTarde: manualRecipes.tarde,
-        jantar: manualRecipes.jantar,
-      }));
+      // Usamos o mapeamento garantindo que os dados entrem no objeto
+      const enhancedMenu = newMenu.map((day) => {
+        return {
+          ...day,
+          // Injetamos as receitas diretamente no nível superior do objeto
+          // Usamos 'as any' para o TypeScript permitir a inclusão dessas novas chaves
+          lancheManha: manualRecipes.manha,
+          lancheTarde: manualRecipes.tarde,
+          jantar: manualRecipes.jantar,
+        } as any;
+      });
+
       setWeekMenu(enhancedMenu);
       localStorage.setItem("nutriBebe_weekMenu", JSON.stringify(enhancedMenu));
     }
