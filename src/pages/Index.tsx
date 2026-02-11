@@ -6,7 +6,7 @@ import ShoppingList from "@/components/ShoppingList";
 import NutritionistsPage from "@/components/NutritionistsPage";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
-import { Coffee, Apple, Moon, ChevronDown, ChevronUp, Utensils } from "lucide-react";
+import { Coffee, Apple, Moon, ChevronDown, ChevronUp } from "lucide-react";
 
 type NavTab = "today" | "calendar" | "list" | "nutris";
 
@@ -59,7 +59,6 @@ const Index = () => {
 
   const getTodayMenu = () => weekMenu[new Date().getDay()] || weekMenu[0] || null;
 
-  // Componente de Card Padronizado
   const MealCard = ({ id, icon: Icon, title, recipe, colorClass }: any) => {
     const isOpen = openMeals[id];
     return (
@@ -70,8 +69,8 @@ const Index = () => {
               <Icon size={22} className={colorClass.replace("bg-", "text-")} />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{title}</p>
-              <h4 className="font-bold text-slate-800 text-base">{recipe.nome}</h4>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">{title}</p>
+              <h4 className="font-bold text-slate-800 text-base leading-tight">{recipe.nome}</h4>
             </div>
           </div>
           {isOpen ? (
@@ -106,36 +105,42 @@ const Index = () => {
     switch (activeTab) {
       case "today":
         return (
-          <div className="px-4 pt-4 pb-10">
-            {/* 1. LANCHE DA MANHÃ */}
-            <MealCard
-              id="manha"
-              icon={Coffee}
-              title="Lanche da Manhã"
-              recipe={manualRecipes.manha}
-              colorClass="bg-orange-500"
-            />
-
-            {/* 2. ALMOÇO (Vem do Dashboard Original) */}
+          <div className="pb-10">
+            {/* O TodayDashboard geralmente já traz um Header e o Almoço */}
             <TodayDashboard
               todayMenu={todayMenu}
               onGenerate={handleGenerate}
               isLocked={false}
               isLoadingAlimentos={isLoadingAlimentos}
-              hideHeader={true} // Se o seu componente permitir, escondemos o header para não repetir
             />
 
-            {/* 3. LANCHE DA TARDE */}
-            <MealCard
-              id="tarde"
-              icon={Apple}
-              title="Lanche da Tarde"
-              recipe={manualRecipes.tarde}
-              colorClass="bg-orange-500"
-            />
+            <div className="px-4 -mt-4">
+              <h3 className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-4 ml-2">
+                Complementos do Dia
+              </h3>
 
-            {/* 4. JANTAR ESPECIAL */}
-            <MealCard id="jantar" icon={Moon} title="Jantar" recipe={manualRecipes.jantar} colorClass="bg-blue-600" />
+              <MealCard
+                id="manha"
+                icon={Coffee}
+                title="Lanche da Manhã"
+                recipe={manualRecipes.manha}
+                colorClass="bg-orange-500"
+              />
+              <MealCard
+                id="tarde"
+                icon={Apple}
+                title="Lanche da Tarde"
+                recipe={manualRecipes.tarde}
+                colorClass="bg-orange-500"
+              />
+              <MealCard
+                id="jantar"
+                icon={Moon}
+                title="Jantar Especial"
+                recipe={manualRecipes.jantar}
+                colorClass="bg-blue-600"
+              />
+            </div>
           </div>
         );
       case "calendar":
