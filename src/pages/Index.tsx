@@ -106,19 +106,11 @@ const Index = () => {
       case "today":
         return (
           <div className="pb-10">
-            {/* O TodayDashboard geralmente já traz um Header e o Almoço */}
-            <TodayDashboard
-              todayMenu={todayMenu}
-              onGenerate={handleGenerate}
-              isLocked={false}
-              isLoadingAlimentos={isLoadingAlimentos}
-            />
-
-            <div className="px-4 -mt-4">
+            {/* 1. LANCHE DA MANHÃ NO TOPO (Fora do Dashboard) */}
+            <div className="px-4 pt-6">
               <h3 className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-4 ml-2">
-                Complementos do Dia
+                Primeira Refeição
               </h3>
-
               <MealCard
                 id="manha"
                 icon={Coffee}
@@ -126,6 +118,21 @@ const Index = () => {
                 recipe={manualRecipes.manha}
                 colorClass="bg-orange-500"
               />
+            </div>
+
+            {/* 2. DASHBOARD (ALMOÇO) */}
+            <TodayDashboard
+              todayMenu={todayMenu}
+              onGenerate={handleGenerate}
+              isLocked={false}
+              isLoadingAlimentos={isLoadingAlimentos}
+            />
+
+            {/* 3. LANCHE DA TARDE E JANTAR ABAIXO */}
+            <div className="px-4 -mt-4">
+              <h3 className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-4 ml-2">
+                Próximas Refeições
+              </h3>
               <MealCard
                 id="tarde"
                 icon={Apple}
