@@ -1,29 +1,28 @@
-import { Sun, Moon } from 'lucide-react';
-import { Meal } from '@/data/menuData';
+import { Sun, Moon, Coffee, Apple } from 'lucide-react';
+import { Meal, MealType } from '@/data/menuData';
 import FoodCard from './FoodCard';
 
 interface MealCardProps {
   meal: Meal;
 }
 
+const mealConfig: Record<MealType, { icon: typeof Sun; label: string; className: string }> = {
+  morning_snack: { icon: Coffee, label: 'Lanche da Manhã', className: 'meal-time-lunch' },
+  lunch: { icon: Sun, label: 'Almoço', className: 'meal-time-lunch' },
+  afternoon_snack: { icon: Apple, label: 'Lanche da Tarde', className: 'meal-time-lunch' },
+  dinner: { icon: Moon, label: 'Jantar', className: 'meal-time-dinner' },
+};
+
 const MealCard = ({ meal }: MealCardProps) => {
-  const isLunch = meal.type === 'lunch';
+  const config = mealConfig[meal.type];
+  const Icon = config.icon;
 
   return (
     <div className="card-elevated mb-4 animate-slide-up">
       <div className="flex items-center gap-2 mb-4">
-        <div className={isLunch ? 'meal-time-lunch' : 'meal-time-dinner'}>
-          {isLunch ? (
-            <>
-              <Sun size={16} />
-              <span>Almoço</span>
-            </>
-          ) : (
-            <>
-              <Moon size={16} />
-              <span>Jantar</span>
-            </>
-          )}
+        <div className={config.className}>
+          <Icon size={16} />
+          <span>{config.label}</span>
         </div>
       </div>
 

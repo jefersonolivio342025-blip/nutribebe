@@ -11,8 +11,10 @@ export interface Food {
   };
 }
 
+export type MealType = 'morning_snack' | 'lunch' | 'afternoon_snack' | 'dinner';
+
 export interface Meal {
-  type: 'lunch' | 'dinner';
+  type: MealType;
   foods: Food[];
 }
 
