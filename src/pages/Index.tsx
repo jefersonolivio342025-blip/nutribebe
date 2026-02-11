@@ -1,23 +1,41 @@
-import { useState, useEffect } from 'react';
-import BottomNav from '@/components/BottomNav';
-import TodayDashboard from '@/components/TodayDashboard';
-import WeeklyCalendar from '@/components/WeeklyCalendar';
-import ShoppingList from '@/components/ShoppingList';
-import NutritionistsPage from '@/components/NutritionistsPage';
-import { DayMenu } from '@/data/menuData';
-import { useGenerateMenu } from '@/hooks/useGenerateMenu';
+import { useState, useEffect } from "react";
+import BottomNav from "@/components/BottomNav";
+import TodayDashboard from "@/components/TodayDashboard";
+import WeeklyCalendar from "@/components/WeeklyCalendar";
+import ShoppingList from "@/components/ShoppingList";
+import NutritionistsPage from "@/components/NutritionistsPage";
+import { DayMenu } from "@/data/menuData";
+import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 
-type NavTab = 'today' | 'calendar' | 'list' | 'nutris';
+type NavTab = "today" | "calendar" | "list" | "nutris";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<NavTab>('today');
+  const [activeTab, setActiveTab] = useState<NavTab>("today");
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>([]);
-  
+
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
 
-  // Load menu from localStorage on mount
+  // NOVAS RECEITAS QUE VOCÊ PEDIU (Injetadas manualmente)
+  const manualRecipes = {
+    manha: {
+      nome: "Papinha de Abacate com Banana",
+      ingredientes: ["1/2 abacate", "1 banana prata"],
+      preparo: "Amasse e misture.",
+    },
+    tarde: {
+      nome: "Muffin de Maçã e Aveia",
+      ingredientes: ["1 maçã", "1 ovo", "3 col. aveia"],
+      preparo: "Misture e assar 15min.",
+    },
+    jantar: {
+      nome: "Sopa de Mandioquinha com Frango",
+      ingredientes: ["1 mandioquinha", "30g frango"],
+      preparo: "Cozinhar e amassar.",
+    },
+  };
+
   useEffect(() => {
-    const savedMenu = localStorage.getItem('nutriBebe_weekMenu');
+    const savedMenu = localStorage.getItem("nutriBebe_weekMenu");
     if (savedMenu) {
       const parsed = JSON.parse(savedMenu);
       const restored = parsed.map((day: DayMenu) => ({
@@ -25,26 +43,41 @@ const Index = () => {
         date: new Date(day.date),
       }));
       setWeekMenu(restored);
+    } else {
+      // Se estiver vazio, gera o primeiro menu automaticamente para não ficar em branco
+      handleGenerate();
     }
   }, []);
 
   const handleGenerate = () => {
     const newMenu = generateWeeklyMenu();
     if (newMenu.length > 0) {
-      setWeekMenu(newMenu);
-      localStorage.setItem('nutriBebe_weekMenu', JSON.stringify(newMenu));
+      // Ajustando o primeiro dia para garantir que tenha as receitas que você pediu
+      const enhancedMenu = newMenu.map((day) => ({
+        ...day,
+        refeicoes: {
+          ...day.refeicoes,
+          // Aqui forçamos as categorias que você quer destacar
+          lancheManha: manualRecipes.manha,
+          lancheTarde: manualRecipes.tarde,
+          jantar: manualRecipes.jantar,
+        },
+      }));
+      setWeekMenu(enhancedMenu);
+      localStorage.setItem("nutriBebe_weekMenu", JSON.stringify(enhancedMenu));
     }
   };
 
   const getTodayMenu = (): DayMenu | null => {
     if (weekMenu.length === 0) return null;
     const today = new Date().getDay();
-    return weekMenu[today] || null;
+    // Ajuste para evitar erro de índice no array
+    return weekMenu[today] || weekMenu[0];
   };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'today':
+      case "today":
         return (
           <TodayDashboard
             todayMenu={getTodayMenu()}
@@ -53,11 +86,11 @@ const Index = () => {
             isLoadingAlimentos={isLoadingAlimentos}
           />
         );
-      case 'calendar':
+      case "calendar":
         return <WeeklyCalendar weekMenu={weekMenu} isLocked={false} />;
-      case 'list':
+      case "list":
         return <ShoppingList weekMenu={weekMenu} />;
-      case 'nutris':
+      case "nutris":
         return <NutritionistsPage />;
       default:
         return null;
@@ -66,7 +99,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {renderContent()}
+      <div className="pb-20">
+        {" "}
+        {/* Espaço para a Nav não cobrir o conteúdo */}
+        {renderContent()}
+      </div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
