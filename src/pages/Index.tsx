@@ -52,18 +52,22 @@ const Index = () => {
   const handleGenerate = () => {
     const newMenu = generateWeeklyMenu();
     if (newMenu.length > 0) {
-      // Usamos o mapeamento garantindo que os dados entrem no objeto
-      const enhancedMenu = newMenu.map((day) => {
-        return {
-          ...day,
-          // Injetamos as receitas diretamente no nível superior do objeto
-          // Usamos 'as any' para o TypeScript permitir a inclusão dessas novas chaves
-          lancheManha: manualRecipes.manha,
-          lancheTarde: manualRecipes.tarde,
-          jantar: manualRecipes.jantar,
-        } as any;
-      });
-
+      const enhancedMenu = newMenu.map((day: any) => ({
+        ...day,
+        // Forçamos a substituição nos campos que o componente costuma ler
+        breakfast: manualRecipes.manha,
+        lunch: {
+          nome: "Almoço Nutritivo",
+          ingredientes: ["Proteína", "Legumes", "Carboidrato"],
+          preparo: "Cozinhe os alimentos de forma segura para o bebê.",
+        },
+        snack: manualRecipes.tarde,
+        dinner: manualRecipes.jantar,
+        // Mantemos também em português caso o componente use esses nomes
+        lancheManha: manualRecipes.manha,
+        lancheTarde: manualRecipes.tarde,
+        jantar: manualRecipes.jantar,
+      }));
       setWeekMenu(enhancedMenu);
       localStorage.setItem("nutriBebe_weekMenu", JSON.stringify(enhancedMenu));
     }
