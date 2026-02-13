@@ -7,7 +7,49 @@ import NutritionistsPage from "@/components/NutritionistsPage";
 import DailyMenuScreen from "@/components/DailyMenuScreen";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
-import { Search, CheckCircle2, XCircle, AlertCircle, ClipboardCheck, X } from "lucide-react";
+import { Search, CheckCircle2, XCircle, AlertCircle, ClipboardCheck, X, Heart } from "lucide-react";
+
+// --- COMPONENTE DO DIÁRIO DE REAÇÕES ---
+const ReactionTracker = () => {
+  const [reaction, setReaction] = useState<string | null>(null);
+
+  const reactions = [
+    { id: "loved", emoji: "😋", label: "Amou" },
+    { id: "ok", emoji: "😐", label: "Aceitou" },
+    { id: "disliked", emoji: "🤢", label: "Recusou" },
+    { id: "allergy", emoji: "🔴", label: "Reação" },
+  ];
+
+  return (
+    <div className="mx-4 mt-6 p-5 bg-white rounded-[32px] border border-gray-100 shadow-sm mb-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Heart className="text-pink-500 fill-pink-500" size={18} />
+        <h3 className="font-bold text-gray-800 text-sm">Como foi a refeição de hoje?</h3>
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {reactions.map((r) => (
+          <button
+            key={r.id}
+            onClick={() => setReaction(r.id)}
+            className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all ${
+              reaction === r.id ? "bg-orange-50 border-orange-200 scale-105" : "bg-gray-50 border-transparent"
+            } border`}
+          >
+            <span className="text-2xl">{r.emoji}</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{r.label}</span>
+          </button>
+        ))}
+      </div>
+      {reaction === "allergy" && (
+        <div className="mt-4 p-3 bg-red-50 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-1">
+          <p className="text-[11px] text-red-600 leading-tight italic">
+            <strong>Atenção:</strong> Se notar manchas, inchaço ou diarreia, suspenda o alimento e consulte o pediatra.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // --- COMPONENTE DE BUSCA ---
 const SearchBar = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
@@ -32,7 +74,6 @@ const SearchBar = ({ value, onChange }: { value: string; onChange: (v: string) =
 const ReadinessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const [checks, setChecks] = useState({ s1: false, s2: false, s3: false, s4: false });
   if (!isOpen) return null;
-
   const allReady = Object.values(checks).every((v) => v);
 
   return (
@@ -47,11 +88,9 @@ const ReadinessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             <X size={20} />
           </button>
         </div>
-
         <p className="text-sm text-gray-500 mb-6 leading-relaxed">
           Verifique se o seu bebê apresenta todos os sinais de prontidão recomendados pela OMS:
         </p>
-
         <div className="space-y-3">
           {[
             { id: "s1", txt: "Senta sem apoio (ou com o mínimo)" },
@@ -73,7 +112,6 @@ const ReadinessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             </label>
           ))}
         </div>
-
         {allReady ? (
           <div className="mt-6 p-4 bg-green-50 rounded-2xl border border-green-100 text-center animate-bounce">
             <p className="text-green-700 font-bold text-sm">🎉 Seu bebê está pronto!</p>
@@ -155,7 +193,6 @@ const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
           </div>
         </div>
       )}
-
       <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">Guia em Vídeo</h2>
       <div className="grid grid-cols-1 gap-6">
         {filteredVideos.map((video) => (
@@ -233,6 +270,9 @@ const Index = () => {
               isLocked={false}
               isLoadingAlimentos={isLoadingAlimentos}
             />
+
+            {/* NOVO: DIÁRIO DE REAÇÕES ABAIXO DO DASHBOARD */}
+            <ReactionTracker />
           </div>
         );
       case "daily":
