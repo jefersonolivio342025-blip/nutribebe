@@ -4,10 +4,11 @@ import TodayDashboard from "@/components/TodayDashboard";
 import WeeklyCalendar from "@/components/WeeklyCalendar";
 import ShoppingList from "@/components/ShoppingList";
 import NutritionistsPage from "@/components/NutritionistsPage";
+import DailyMenuScreen from "@/components/DailyMenuScreen";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 
-type NavTab = "today" | "calendar" | "list" | "nutris";
+type NavTab = "today" | "daily" | "calendar" | "list" | "nutris";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>("today");
@@ -45,6 +46,8 @@ const Index = () => {
             isLoadingAlimentos={isLoadingAlimentos}
           />
         );
+      case "daily":
+        return <DailyMenuScreen />;
       case "calendar":
         return <WeeklyCalendar weekMenu={weekMenu} isLocked={false} />;
       case "list":

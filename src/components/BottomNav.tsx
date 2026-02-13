@@ -1,6 +1,6 @@
-import { Calendar, Home, ShoppingCart, Stethoscope } from 'lucide-react';
+import { Calendar, Home, ShoppingCart, Stethoscope, UtensilsCrossed } from 'lucide-react';
 
-type NavTab = 'today' | 'calendar' | 'list' | 'nutris';
+type NavTab = 'today' | 'daily' | 'calendar' | 'list' | 'nutris';
 
 interface BottomNavProps {
   activeTab: NavTab;
@@ -10,6 +10,7 @@ interface BottomNavProps {
 const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   const navItems: { id: NavTab; icon: typeof Home; label: string }[] = [
     { id: 'today', icon: Home, label: 'Hoje' },
+    { id: 'daily', icon: UtensilsCrossed, label: 'Receitas' },
     { id: 'calendar', icon: Calendar, label: 'Semana' },
     { id: 'list', icon: ShoppingCart, label: 'Lista' },
     { id: 'nutris', icon: Stethoscope, label: 'Nutris' },
