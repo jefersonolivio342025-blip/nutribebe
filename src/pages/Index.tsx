@@ -159,16 +159,7 @@ const Index = () => {
   const [isReadinessOpen, setIsReadinessOpen] = useState(false);
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
 
-  useEffect(() => {
-    const savedMenu = localStorage.getItem("nutriBebe_weekMenu");
-    if (savedMenu) {
-      const parsed = JSON.parse(savedMenu);
-      setWeekMenu(parsed.map((day: any) => ({ ...day, date: new Date(day.date) })));
-    } else {
-      handleGenerate();
-    }
-  }, []);
-
+  // --- LÓGICA DE GERAÇÃO ---
   const handleGenerate = () => {
     const newMenu = generateWeeklyMenu();
     if (newMenu.length > 0) {
@@ -177,7 +168,24 @@ const Index = () => {
     }
   };
 
-  // --- NOVA FUNÇÃO: ATUALIZAR UM DIA ESPECÍFICO DO CARDÁPIO ---
+  // --- EFEITO PARA CARREGAR E LIMPAR O CACHE ANTIGO ---
+  useEffect(() => {
+    const savedMenu = localStorage.getItem("nutriBebe_weekMenu");
+    if (savedMenu) {
+      const parsed = JSON.parse(savedMenu);
+
+      // Se o cardápio tiver apenas 2 refeições (lunch/dinner), forçamos o novo com as frutas
+      if (parsed[0] && parsed[0].meals.length < 4) {
+        localStorage.removeItem("nutriBebe_weekMenu");
+        handleGenerate();
+      } else {
+        setWeekMenu(parsed.map((day: any) => ({ ...day, date: new Date(day.date) })));
+      }
+    } else {
+      handleGenerate();
+    }
+  }, []);
+
   const handleUpdateDayMenu = (dayIndex: number, updatedDay: DayMenu) => {
     const newMenu = [...weekMenu];
     newMenu[dayIndex] = updatedDay;
@@ -216,7 +224,7 @@ const Index = () => {
       case "calendar":
         return <WeeklyCalendar weekMenu={weekMenu} isLocked={false} onUpdateMenu={handleUpdateDayMenu} />;
       case "list":
-        return <ShoppingList weekMenu={weekMenu} />; // Aqui a mãe poderá adicionar itens manuais se o componente permitir
+        return <ShoppingList weekMenu={weekMenu} />;
       case "nutris":
         return <NutritionistsPage />;
       case "videos":
