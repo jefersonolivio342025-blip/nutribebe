@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import BottomNav from "@/components/BottomNav";
+// Importamos o BottomNav e TAMBÉM o tipo NavTab que exportamos de lá
+import BottomNav, { NavTab } from "@/components/BottomNav";
 import TodayDashboard from "@/components/TodayDashboard";
 import WeeklyCalendar from "@/components/WeeklyCalendar";
 import ShoppingList from "@/components/ShoppingList";
@@ -8,7 +9,7 @@ import DailyMenuScreen from "@/components/DailyMenuScreen";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 
-// --- COMPONENTE DE VÍDEOS ADICIONADO AQUI ---
+// --- COMPONENTE DE VÍDEOS INTERNO ---
 const VideoLibrary = () => {
   const videos = [
     { id: "4oBnVNaN0jU", title: "Cortes Seguros BLW", category: "Segurança" },
@@ -44,10 +45,8 @@ const VideoLibrary = () => {
   );
 };
 
-// Atualizado o tipo NavTab para incluir "videos"
-type NavTab = "today" | "daily" | "calendar" | "list" | "nutris" | "videos";
-
 const Index = () => {
+  // Agora usamos o NavTab importado, garantindo que o TypeScript não veja duplicatas
   const [activeTab, setActiveTab] = useState<NavTab>("today");
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>([]);
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
@@ -91,7 +90,7 @@ const Index = () => {
         return <ShoppingList weekMenu={weekMenu} />;
       case "nutris":
         return <NutritionistsPage />;
-      case "videos": // Nova aba adicionada ao render
+      case "videos":
         return <VideoLibrary />;
       default:
         return null;
@@ -101,7 +100,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#FDFCFB]">
       <div className="pb-24">{renderContent()}</div>
-      {/* Certifique-se de que o componente BottomNav aceite a nova aba "videos" */}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
