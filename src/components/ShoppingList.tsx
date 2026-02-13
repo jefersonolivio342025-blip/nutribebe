@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import { Check, ShoppingBag, FileDown, Share2 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import { DayMenu, getShoppingList } from '@/data/menuData';
-import { useViewContentTracking, useConversionTracking } from '@/hooks/useConversionTracking';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Check, ShoppingBag, FileDown, Share2, Plus, Trash2 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import { DayMenu, getShoppingList } from "@/data/menuData";
+import { useViewContentTracking, useConversionTracking } from "@/hooks/useConversionTracking";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface ShoppingListProps {
   weekMenu: DayMenu[];
 }
 
+// Interface para itens que a mãe adiciona manualmente
+interface CustomItem {
+  id: string;
+  name: string;
+  checked: boolean;
+}
+
 const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
-  useViewContentTracking('Lista de Compras', 'Shopping');
+  useViewContentTracking("Lista de Compras", "Shopping");
   const { handlePaywallClick } = useConversionTracking();
   const { isPremium } = useAuth();
-  
+
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [customItems, setCustomItems] = useState<CustomItem[]>([]);
+  const [newItemName, setNewItemName] = useState("");
 
   const shoppingList = getShoppingList(weekMenu);
   const sortedItems = Array.from(shoppingList.entries()).sort((a, b) => {
@@ -34,220 +43,82 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
     setCheckedItems(newChecked);
   };
 
+  // Funções para itens manuais
+  const addCustomItem = () => {
+    if (!newItemName.trim()) return;
+    const newItem: CustomItem = {
+      id: `custom-${Date.now()}`,
+      name: newItemName,
+      checked: false,
+    };
+    setCustomItems([...customItems, newItem]);
+    setNewItemName("");
+    toast.success("Item adicionado à lista!");
+  };
+
+  const toggleCustomItem = (id: string) => {
+    setCustomItems(customItems.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item)));
+  };
+
+  const removeCustomItem = (id: string) => {
+    setCustomItems(customItems.filter((item) => item.id !== id));
+  };
+
   const groupLabels = {
-    protein: { label: 'Proteínas', emoji: '🥩' },
-    carbs: { label: 'Carboidratos', emoji: '🍚' },
-    veggies: { label: 'Legumes & Verduras', emoji: '🥦' },
+    protein: { label: "Proteínas", emoji: "🥩" },
+    carbs: { label: "Carboidratos", emoji: "🍚" },
+    veggies: { label: "Legumes & Verduras", emoji: "🥦" },
   };
 
-  const groupedItems = sortedItems.reduce((acc, [id, { food, count }]) => {
-    if (!acc[food.group]) {
-      acc[food.group] = [];
-    }
-    acc[food.group].push({ id, food, count });
-    return acc;
-  }, {} as Record<string, { id: string; food: typeof sortedItems[0][1]['food']; count: number }[]>);
+  const groupedItems = sortedItems.reduce(
+    (acc, [id, { food, count }]) => {
+      if (!acc[food.group]) {
+        acc[food.group] = [];
+      }
+      acc[food.group].push({ id, food, count });
+      return acc;
+    },
+    {} as Record<string, { id: string; food: (typeof sortedItems)[0][1]["food"]; count: number }[]>,
+  );
 
-  const completedCount = checkedItems.size;
-  const totalCount = sortedItems.length;
+  const completedCount = checkedItems.size + customItems.filter((i) => i.checked).length;
+  const totalCount = sortedItems.length + customItems.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-
-  const handleExportPDF = () => {
-    if (!isPremium) {
-      handlePaywallClick('Lista de Compras', 'Baixar Lista PDF');
-      toast.error('Recurso Exclusivo do Plano Vitalício ⭐', {
-        description: 'Libere seu acesso para baixar a lista em PDF!',
-        action: {
-          label: 'Liberar Acesso',
-          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxFv', '_blank'),
-        },
-      });
-      return;
-    }
-
-    if (checkedItems.size === 0) {
-      toast.error('Nenhum item selecionado', { 
-        description: 'Selecione os itens que deseja baixar.' 
-      });
-      return;
-    }
-
-    // Filter only checked items
-    const selectedItems = sortedItems.filter(([id]) => checkedItems.has(id));
-    const selectedGroupedItems = selectedItems.reduce((acc, [id, { food, count }]) => {
-      if (!acc[food.group]) {
-        acc[food.group] = [];
-      }
-      acc[food.group].push({ id, food, count });
-      return acc;
-    }, {} as Record<string, { id: string; food: typeof sortedItems[0][1]['food']; count: number }[]>);
-
-    const doc = new jsPDF();
-    const today = new Date().toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-
-    // Header
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Minha Lista NutriBebê PRO', 105, 20, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(today, 105, 30, { align: 'center' });
-
-    let yPosition = 50;
-    const lineHeight = 8;
-    const categorySpacing = 15;
-
-    // Categories
-    const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
-    
-    categoryOrder.forEach((group) => {
-      const items = selectedGroupedItems[group];
-      if (!items || items.length === 0) return;
-
-      // Check if we need a new page
-      if (yPosition > 260) {
-        doc.addPage();
-        yPosition = 20;
-      }
-
-      // Category header
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${groupLabels[group].emoji} ${groupLabels[group].label}`, 20, yPosition);
-      yPosition += lineHeight + 2;
-
-      // Items
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'normal');
-      
-      items.forEach(({ food, count }) => {
-        if (yPosition > 280) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.text(`• ${food.name} (${count}x)`, 25, yPosition);
-        yPosition += lineHeight;
-      });
-
-      yPosition += categorySpacing;
-    });
-
-    // Footer
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text('Gerado por NutriBebê PRO', 105, 290, { align: 'center' });
-
-    doc.save('lista-nutribebe-selecionados.pdf');
-    toast.success(`PDF com ${checkedItems.size} item(ns) baixado! 📄`);
-  };
-
-  const handleShareWhatsApp = () => {
-    if (!isPremium) {
-      handlePaywallClick('Lista de Compras', 'Compartilhar WhatsApp');
-      toast.error('Recurso Exclusivo do Plano Vitalício ⭐', {
-        description: 'Libere seu acesso para compartilhar a lista!',
-        action: {
-          label: 'Liberar Acesso',
-          onClick: () => window.open('https://pay.kiwify.com.br/vrYjxFv', '_blank'),
-        },
-      });
-      return;
-    }
-
-    if (checkedItems.size === 0) {
-      toast.error('Nenhum item selecionado', { 
-        description: 'Selecione os itens que deseja compartilhar.' 
-      });
-      return;
-    }
-
-    // Filter only checked items
-    const selectedItems = sortedItems.filter(([id]) => checkedItems.has(id));
-    const selectedGroupedItems = selectedItems.reduce((acc, [id, { food, count }]) => {
-      if (!acc[food.group]) {
-        acc[food.group] = [];
-      }
-      acc[food.group].push({ id, food, count });
-      return acc;
-    }, {} as Record<string, { id: string; food: typeof sortedItems[0][1]['food']; count: number }[]>);
-
-    const today = new Date().toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-
-    let message = `🛒 *Minha Lista NutriBebê PRO*\n📅 ${today}\n\n`;
-
-    const categoryOrder: Array<'protein' | 'carbs' | 'veggies'> = ['protein', 'carbs', 'veggies'];
-    
-    categoryOrder.forEach((group) => {
-      const items = selectedGroupedItems[group];
-      if (!items || items.length === 0) return;
-
-      message += `*${groupLabels[group].emoji} ${groupLabels[group].label}*\n`;
-      items.forEach(({ food, count }) => {
-        message += `• ${food.name} (${count}x)\n`;
-      });
-      message += '\n';
-    });
-
-    message += '✨ _Gerado por NutriBebê PRO_';
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    toast.success(`Compartilhando ${checkedItems.size} item(ns)...`);
-  };
 
   return (
     <div className="page-container">
       <header className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold text-foreground">
-              Lista de Compras 🛒
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Ingredientes para a semana toda
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleShareWhatsApp}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <Share2 size={16} />
-              <span className="hidden sm:inline">WhatsApp</span>
-            </Button>
-            <Button
-              onClick={handleExportPDF}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <FileDown size={16} />
-              <span className="hidden sm:inline">Selecionados</span>
-              <span className="sm:hidden">📄</span>
-            </Button>
+            <h1 className="text-2xl font-extrabold text-foreground">Lista de Compras 🛒</h1>
+            <p className="text-sm text-muted-foreground mt-1">Organize tudo o que o bebê precisa</p>
           </div>
         </div>
       </header>
 
-      {sortedItems.length > 0 ? (
+      {/* INPUT PARA ADICIONAR ITENS MANUAIS */}
+      <div className="flex gap-2 mb-6">
+        <input
+          type="text"
+          placeholder="Adicionar item (ex: Fraldas, Leite...)"
+          value={newItemName}
+          onChange={(e) => setNewItemName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addCustomItem()}
+          className="flex-1 bg-white border border-border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+        />
+        <Button onClick={addCustomItem} size="icon" className="rounded-xl">
+          <Plus size={20} />
+        </Button>
+      </div>
+
+      {totalCount > 0 ? (
         <>
           {/* Progress Bar */}
           <div className="card-elevated mb-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ShoppingBag size={20} className="text-primary" />
-                <span className="font-semibold text-foreground">Progresso</span>
+                <span className="font-semibold text-foreground">Progresso Total</span>
               </div>
               <span className="text-sm font-medium text-muted-foreground">
                 {completedCount} de {totalCount} itens
@@ -261,7 +132,48 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
             </div>
           </div>
 
-          {/* Grouped Items */}
+          {/* ITENS PERSONALIZADOS DA MÃE */}
+          {customItems.length > 0 && (
+            <div className="mb-6">
+              <h2 className="section-title flex items-center gap-2">
+                <span>📝</span>
+                <span>Itens Extras</span>
+              </h2>
+              <div className="space-y-2">
+                {customItems.map((item) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <button
+                      onClick={() => toggleCustomItem(item.id)}
+                      className={`ingredient-item flex-1 transition-all duration-200 ${item.checked ? "opacity-60" : ""}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center ${item.checked ? "bg-primary border-primary" : "border-border"}`}
+                        >
+                          {item.checked && <Check size={14} className="text-primary-foreground" />}
+                        </div>
+                        <span
+                          className={`font-medium ${item.checked ? "line-through text-muted-foreground" : "text-foreground"}`}
+                        >
+                          {item.name}
+                        </span>
+                      </div>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeCustomItem(item.id)}
+                      className="text-muted-foreground hover:text-red-500"
+                    >
+                      <Trash2 size={18} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Grouped Items (Automáticos do Cardápio) */}
           {Object.entries(groupedItems).map(([group, items]) => (
             <div key={group} className="mb-6">
               <h2 className="section-title flex items-center gap-2">
@@ -275,29 +187,17 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
                     <button
                       key={id}
                       onClick={() => toggleItem(id)}
-                      className={`ingredient-item w-full transition-all duration-200 ${
-                        isChecked ? 'opacity-60' : ''
-                      }`}
+                      className={`ingredient-item w-full transition-all duration-200 ${isChecked ? "opacity-60" : ""}`}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
-                            isChecked
-                              ? 'bg-primary border-primary'
-                              : 'border-border'
-                          }`}
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center ${isChecked ? "bg-primary border-primary" : "border-border"}`}
                         >
-                          {isChecked && (
-                            <Check size={14} className="text-primary-foreground" />
-                          )}
+                          {isChecked && <Check size={14} className="text-primary-foreground" />}
                         </div>
                         <span className="text-xl">{food.emoji}</span>
                         <span
-                          className={`font-medium ${
-                            isChecked
-                              ? 'line-through text-muted-foreground'
-                              : 'text-foreground'
-                          }`}
+                          className={`font-medium ${isChecked ? "line-through text-muted-foreground" : "text-foreground"}`}
                         >
                           {food.name}
                         </span>
@@ -315,12 +215,8 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
       ) : (
         <div className="card-elevated text-center py-12">
           <div className="text-5xl mb-4">🛒</div>
-          <h3 className="text-lg font-bold text-foreground mb-2">
-            Lista vazia
-          </h3>
-          <p className="text-muted-foreground">
-            Gere um cardápio para ver a lista de compras
-          </p>
+          <h3 className="text-lg font-bold text-foreground mb-2">Lista vazia</h3>
+          <p className="text-muted-foreground">Adicione itens acima ou gere um cardápio semanal.</p>
         </div>
       )}
     </div>
