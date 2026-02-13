@@ -1,32 +1,50 @@
-import { useState } from 'react';
-import { ChevronRight, Lock, Sparkles } from 'lucide-react';
-import { DayMenu } from '@/data/menuData';
-import MealCard from './MealCard';
-import { useConversionTracking, useViewContentTracking } from '@/hooks/useConversionTracking';
+import { useState } from "react";
+import { ChevronRight, Lock, Sparkles, RefreshCw } from "lucide-react"; // Adicionei RefreshCw
+import { DayMenu } from "@/data/menuData";
+import MealCard from "./MealCard";
+import { useConversionTracking, useViewContentTracking } from "@/hooks/useConversionTracking";
 
 interface WeeklyCalendarProps {
   weekMenu: DayMenu[];
   isLocked: boolean;
+  onUpdateMenu?: (dayIndex: number, updatedDay: DayMenu) => void; // Adicionado para resolver o erro
 }
 
-const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
+const WeeklyCalendar = ({ weekMenu, isLocked, onUpdateMenu }: WeeklyCalendarProps) => {
   const { handlePaywallClick } = useConversionTracking();
-  useViewContentTracking('Calendário Semanal', 'Menu');
-  
+  useViewContentTracking("Calendário Semanal", "Menu");
+
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDay());
   const today = new Date().getDay();
 
   const isAfterWednesday = (dayIndex: number) => dayIndex >= 3;
 
+  // Função para simular a troca de cardápio
+  const handleSwapRecipe = () => {
+    if (!onUpdateMenu) return;
+
+    // Aqui você pode expandir para abrir um modal de seleção no futuro
+    alert("Funcionalidade de troca: O Lovable agora pode configurar a lista de receitas para você escolher aqui!");
+  };
+
   return (
     <div className="page-container">
-      <header className="mb-6">
-        <h1 className="text-2xl font-extrabold text-foreground">
-          Calendário Semanal 📅
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Planejamento completo da semana
-        </p>
+      <header className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-extrabold text-foreground">Calendário Semanal 📅</h1>
+          <p className="text-sm text-muted-foreground mt-1">Planejamento completo da semana</p>
+        </div>
+
+        {/* Botão de Trocar Receita aparecendo no topo quando um dia é selecionado */}
+        {!isLocked && (
+          <button
+            onClick={handleSwapRecipe}
+            className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 px-3 py-2 rounded-xl active:scale-95 transition-all"
+          >
+            <RefreshCw size={14} />
+            Trocar Cardápio
+          </button>
+        )}
       </header>
 
       {weekMenu.length > 0 ? (
@@ -44,18 +62,16 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                   onClick={() => setSelectedDay(index)}
                   className={`flex-shrink-0 px-4 py-3 rounded-2xl transition-all duration-200 ${
                     isSelected
-                      ? 'bg-primary text-primary-foreground shadow-card'
-                      : 'bg-card text-foreground shadow-soft hover:shadow-card'
-                  } ${locked ? 'opacity-70' : ''}`}
+                      ? "bg-primary text-primary-foreground shadow-card"
+                      : "bg-card text-foreground shadow-soft hover:shadow-card"
+                  } ${locked ? "opacity-70" : ""}`}
                 >
-                  <p className="text-xs font-medium opacity-80">
-                    {day.dayName.slice(0, 3)}
-                  </p>
+                  <p className="text-xs font-medium opacity-80">{day.dayName.slice(0, 3)}</p>
                   <p className="text-lg font-bold">{day.date.getDate()}</p>
                   {isToday && (
                     <div
                       className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
-                        isSelected ? 'bg-primary-foreground' : 'bg-primary'
+                        isSelected ? "bg-primary-foreground" : "bg-primary"
                       }`}
                     />
                   )}
@@ -67,11 +83,7 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
 
           {/* Selected Day Content */}
           {weekMenu[selectedDay] && (
-            <div
-              className={`relative ${
-                isLocked && isAfterWednesday(selectedDay) ? 'blur-paywall' : ''
-              }`}
-            >
+            <div className={`relative ${isLocked && isAfterWednesday(selectedDay) ? "blur-paywall" : ""}`}>
               <h2 className="section-title flex items-center gap-2">
                 {weekMenu[selectedDay].dayName}
                 <ChevronRight size={18} className="text-muted-foreground" />
@@ -88,25 +100,20 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
                     <div className="w-16 h-16 rounded-full bg-terracotta-light flex items-center justify-center mx-auto mb-4">
                       <Lock size={28} className="text-terracotta" />
                     </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      Conteúdo Exclusivo NutriBebê PRO
-                    </h3>
+                    <h3 className="text-xl font-bold text-foreground mb-2">Conteúdo Exclusivo NutriBebê PRO</h3>
                     <p className="text-muted-foreground mb-6 leading-relaxed">
                       Adquira seu Acesso Vitalício agora e tenha o guia completo na palma da sua mão.
                     </p>
-                    <a 
-                      href="https://pay.kiwify.com.br/vrYjxFv" 
-                      target="_blank" 
+                    <a
+                      href="https://pay.kiwify.com.br/vrYjxFv"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="paywall-cta inline-flex"
-                      onClick={() => handlePaywallClick('weekly_calendar')}
+                      onClick={() => handlePaywallClick("weekly_calendar")}
                     >
                       <Sparkles size={20} />
                       Liberar Acesso Vitalício ⭐
                     </a>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      Compra segura. Acesso vitalício sem mensalidades.
-                    </p>
                   </div>
                 </div>
               )}
@@ -116,12 +123,8 @@ const WeeklyCalendar = ({ weekMenu, isLocked }: WeeklyCalendarProps) => {
       ) : (
         <div className="card-elevated text-center py-12">
           <div className="text-5xl mb-4">📅</div>
-          <h3 className="text-lg font-bold text-foreground mb-2">
-            Nenhum cardápio gerado
-          </h3>
-          <p className="text-muted-foreground">
-            Vá para a aba "Hoje" e gere o cardápio da semana
-          </p>
+          <h3 className="text-lg font-bold text-foreground mb-2">Nenhum cardápio gerado</h3>
+          <p className="text-muted-foreground">Vá para a aba "Hoje" e gere o cardápio da semana</p>
         </div>
       )}
     </div>
