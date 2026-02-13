@@ -7,7 +7,7 @@ import NutritionistsPage from "@/components/NutritionistsPage";
 import DailyMenuScreen from "@/components/DailyMenuScreen";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
-import { Search } from "lucide-react"; // Importando ícone de busca
+import { Search, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 // --- COMPONENTE DE BUSCA ---
 const SearchBar = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
@@ -19,7 +19,7 @@ const SearchBar = ({ value, onChange }: { value: string; onChange: (v: string) =
       />
       <input
         type="text"
-        placeholder="Buscar vídeos ou dicas..."
+        placeholder="Buscar alimentos, vídeos ou dicas..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full bg-white border border-gray-200 rounded-2xl py-3 pl-10 pr-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#F97316] focus:border-transparent transition-all"
@@ -28,7 +28,7 @@ const SearchBar = ({ value, onChange }: { value: string; onChange: (v: string) =
   </div>
 );
 
-// --- COMPONENTE DE VÍDEOS INTERNO (AJUSTADO PARA FILTRO) ---
+// --- COMPONENTE DE VÍDEOS E CONSULTA DE SEGURANÇA ---
 const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
   const allVideos = [
     { id: "4oBnVNaN0jU", title: "Cortes Seguros BLW", category: "Segurança" },
@@ -37,17 +37,83 @@ const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
     { id: "UCIjFewVtGc", title: "Como oferecer Batata", category: "Cortes" },
   ];
 
-  // Lógica de filtro
+  const segurancaAlimentar = [
+    {
+      nome: "Mel",
+      status: "proibido",
+      msg: "Risco de botulismo. Proibido até 1 ano.",
+      icon: <XCircle className="text-red-500" />,
+    },
+    {
+      nome: "Açúcar",
+      status: "evitar",
+      msg: "Não recomendado oferecer antes dos 2 anos.",
+      icon: <AlertCircle className="text-amber-500" />,
+    },
+    {
+      nome: "Ovo",
+      status: "liberado",
+      msg: "Pode desde os 6 meses, sempre bem cozido.",
+      icon: <CheckCircle2 className="text-green-500" />,
+    },
+    {
+      nome: "Sal",
+      status: "evitar",
+      msg: "Evite ao máximo até 1 ano. Use temperos naturais.",
+      icon: <AlertCircle className="text-amber-500" />,
+    },
+    {
+      nome: "Leite de Vaca",
+      status: "proibido",
+      msg: "Risco de sobrecarga renal antes de 1 ano.",
+      icon: <XCircle className="text-red-500" />,
+    },
+    {
+      nome: "Suco de Fruta",
+      status: "evitar",
+      msg: "Prefira a fruta inteira. Suco não é recomendado antes de 1 ano.",
+      icon: <AlertCircle className="text-amber-500" />,
+    },
+  ];
+
   const filteredVideos = allVideos.filter(
     (video) =>
       video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       video.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  const filteredDicas = segurancaAlimentar.filter((item) =>
+    item.nome.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
     <div className="p-4 bg-[#FDFCFB] pb-24">
-      <h2 className="text-2xl font-bold text-[#F97316] mb-6 px-1">Guia em Vídeo</h2>
+      {/* SEÇÃO PODE OU NÃO PODE (Consulta Rápida) */}
+      {(searchQuery.length > 0 || filteredDicas.length > 0) && (
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">Pode ou Não Pode?</h2>
+          <div className="space-y-3">
+            {filteredDicas.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-start gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm animate-in fade-in slide-in-from-bottom-2"
+              >
+                <div className="mt-1">{item.icon}</div>
+                <div>
+                  <h4 className="font-bold text-gray-800">{item.nome}</h4>
+                  <p className="text-sm text-gray-600 leading-relaxed">{item.msg}</p>
+                </div>
+              </div>
+            ))}
+            {searchQuery.length > 0 && filteredDicas.length === 0 && (
+              <p className="text-sm text-gray-400 px-1 italic">Nenhum alerta específico para "{searchQuery}".</p>
+            )}
+          </div>
+        </div>
+      )}
 
+      {/* SEÇÃO DE VÍDEOS */}
+      <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">Guia em Vídeo</h2>
       {filteredVideos.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
           {filteredVideos.map((video) => (
@@ -73,8 +139,8 @@ const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20">
-          <p className="text-gray-500">Nenhum vídeo encontrado para "{searchQuery}"</p>
+        <div className="text-center py-10">
+          <p className="text-gray-500">Nenhum vídeo encontrado.</p>
         </div>
       )}
     </div>
@@ -84,7 +150,7 @@ const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>("today");
   const [weekMenu, setWeekMenu] = useState<DayMenu[]>([]);
-  const [searchQuery, setSearchQuery] = useState(""); // Estado da busca
+  const [searchQuery, setSearchQuery] = useState("");
   const { generateWeeklyMenu, isLoading: isLoadingAlimentos } = useGenerateMenu();
 
   useEffect(() => {
