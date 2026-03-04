@@ -1,7 +1,7 @@
-import { Calendar, Home, ShoppingCart, Stethoscope, UtensilsCrossed, PlayCircle } from "lucide-react";
+import { Calendar, Home, ShoppingCart, Stethoscope, UtensilsCrossed, PlayCircle, BookOpen } from "lucide-react";
 
 // Exportamos o tipo para que o Index.tsx possa usá-lo e evitar o erro de "unrelated types"
-export type NavTab = "today" | "daily" | "calendar" | "list" | "nutris" | "videos";
+export type NavTab = "today" | "daily" | "calendar" | "list" | "nutris" | "videos" | "rotina";
 
 interface BottomNavProps {
   activeTab: NavTab;
@@ -15,7 +15,8 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
     { id: "daily", icon: UtensilsCrossed, label: "Receitas" },
     { id: "calendar", icon: Calendar, label: "Semana" },
     { id: "list", icon: ShoppingCart, label: "Lista" },
-    { id: "videos", icon: PlayCircle, label: "Vídeos" }, // Novo botão
+    { id: "videos", icon: PlayCircle, label: "Vídeos" },
+    { id: "rotina", icon: BookOpen, label: "Rotina" },
     { id: "nutris", icon: Stethoscope, label: "Nutris" },
   ];
 
