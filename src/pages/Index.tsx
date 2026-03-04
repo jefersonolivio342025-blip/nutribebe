@@ -5,6 +5,7 @@ import WeeklyCalendar from "@/components/WeeklyCalendar";
 import ShoppingList from "@/components/ShoppingList";
 import NutritionistsPage from "@/components/NutritionistsPage";
 import DailyMenuScreen from "@/components/DailyMenuScreen";
+import RotinaSemCaos from "@/components/RotinaSemCaos";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 import { Search, CheckCircle2, XCircle, AlertCircle, ClipboardCheck, X, Heart } from "lucide-react";
@@ -234,6 +235,8 @@ const Index = () => {
             <VideoLibrary searchQuery={searchQuery} />
           </>
         );
+      case "rotina":
+        return <RotinaSemCaos />;
       default:
         return null;
     }
