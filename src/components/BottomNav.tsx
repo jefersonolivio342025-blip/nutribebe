@@ -12,7 +12,7 @@ const BottomNav = ({ activeTab, onTabChange }: BottomNavProps) => {
   // Adicionamos o item de vídeos aqui
   const navItems: { id: NavTab; icon: any; label: string }[] = [
     { id: "today", icon: Home, label: "Hoje" },
-    { id: "daily", icon: UtensilsCrossed, label: "Receitas" },
+    { id: "daily", icon: UtensilsCrossed, label: "Prato" },
     { id: "calendar", icon: Calendar, label: "Semana" },
     { id: "list", icon: ShoppingCart, label: "Lista" },
     { id: "videos", icon: PlayCircle, label: "Vídeos" },

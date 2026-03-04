@@ -4,7 +4,7 @@ import TodayDashboard from "@/components/TodayDashboard";
 import WeeklyCalendar from "@/components/WeeklyCalendar";
 import ShoppingList from "@/components/ShoppingList";
 import NutritionistsPage from "@/components/NutritionistsPage";
-import DailyMenuScreen from "@/components/DailyMenuScreen";
+import PlateBuilder from "@/components/PlateBuilder";
 import RotinaSemCaos from "@/components/RotinaSemCaos";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
@@ -221,7 +221,7 @@ const Index = () => {
           </div>
         );
       case "daily":
-        return <DailyMenuScreen />;
+        return <PlateBuilder />;
       case "calendar":
         return <WeeklyCalendar weekMenu={weekMenu} isLocked={false} onUpdateMenu={handleUpdateDayMenu} />;
       case "list":
