@@ -6,11 +6,11 @@ interface MealCardProps {
   meal: Meal;
 }
 
-const mealConfig: Record<MealType, { icon: typeof Sun; label: string; className: string }> = {
-  morning_snack: { icon: Coffee, label: 'Lanche da Manhã', className: 'meal-time-lunch' },
-  lunch: { icon: Sun, label: 'Almoço', className: 'meal-time-lunch' },
-  afternoon_snack: { icon: Apple, label: 'Lanche da Tarde', className: 'meal-time-lunch' },
-  dinner: { icon: Moon, label: 'Jantar', className: 'meal-time-dinner' },
+const mealConfig: Record<MealType, { icon: typeof Sun; label: string; emoji: string; className: string }> = {
+  morning_snack: { icon: Coffee, label: 'Café da Manhã', emoji: '🌅', className: 'meal-time-lunch' },
+  lunch: { icon: Sun, label: 'Almoço', emoji: '☀️', className: 'meal-time-lunch' },
+  afternoon_snack: { icon: Apple, label: 'Lanche da Tarde', emoji: '🍎', className: 'meal-time-lunch' },
+  dinner: { icon: Moon, label: 'Jantar', emoji: '🌙', className: 'meal-time-dinner' },
 };
 
 const MealCard = ({ meal }: MealCardProps) => {

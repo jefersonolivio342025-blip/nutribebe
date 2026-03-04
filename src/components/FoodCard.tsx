@@ -9,16 +9,18 @@ interface FoodCardProps {
 const FoodCard = ({ food }: FoodCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const groupStyles = {
+  const groupStyles: Record<string, string> = {
     protein: 'food-tag-protein',
     carbs: 'food-tag-carbs',
     veggies: 'food-tag-veggies',
+    fruit: 'food-tag-carbs',
   };
 
-  const groupLabels = {
+  const groupLabels: Record<string, string> = {
     protein: 'Proteína',
     carbs: 'Carboidrato',
     veggies: 'Legumes',
+    fruit: 'Fruta',
   };
 
   return (
