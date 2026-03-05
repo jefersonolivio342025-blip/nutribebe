@@ -76,9 +76,10 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
   );
 };
 
-const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
+const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string }) => {
   const [activeCategory, setActiveCategory] = useState('Todos');
-
+  const [internalSearch, setInternalSearch] = useState('');
+  const searchQuery = externalSearch ?? internalSearch;
   const filtered = ALL_VIDEOS.filter((v) => {
     const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       v.description.toLowerCase().includes(searchQuery.toLowerCase());
