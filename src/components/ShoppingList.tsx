@@ -85,6 +85,56 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
   const totalCount = sortedItems.length + customItems.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Minha Lista NutriBebê", 20, 20);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Lista de Compras da Semana", 20, 28);
+
+    let y = 40;
+
+    // Itens extras
+    if (customItems.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text("Itens Extras", 20, y);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      customItems.forEach((item) => {
+        const prefix = item.checked ? "[x] " : "[ ] ";
+        doc.text(`${prefix}${item.name}`, 24, y);
+        y += 7;
+        if (y > 275) { doc.addPage(); y = 20; }
+      });
+      y += 4;
+    }
+
+    // Itens agrupados
+    Object.entries(groupedItems).forEach(([group, items]) => {
+      const label = groupLabels[group as keyof typeof groupLabels];
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(`${label.label}`, 20, y);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      items.forEach(({ id, food, count }) => {
+        const prefix = checkedItems.has(id) ? "[x] " : "[ ] ";
+        doc.text(`${prefix}${food.name} — ${count}x`, 24, y);
+        y += 7;
+        if (y > 275) { doc.addPage(); y = 20; }
+      });
+      y += 4;
+    });
+
+    doc.save("lista-nutribebe.pdf");
+    toast.success("PDF baixado com sucesso!");
+  };
+
   return (
     <div className="page-container">
       <header className="mb-6">
@@ -93,6 +143,10 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
             <h1 className="text-2xl font-extrabold text-foreground">Lista de Compras 🛒</h1>
             <p className="text-sm text-muted-foreground mt-1">Organize tudo o que o bebê precisa</p>
           </div>
+          <Button onClick={handleDownloadPDF} variant="outline" size="sm" className="gap-2 rounded-xl">
+            <FileDown size={16} />
+            PDF
+          </Button>
         </div>
       </header>
 
