@@ -195,12 +195,7 @@ const Index = () => {
       case "nutris":
         return <NutritionistsPage />;
       case "videos":
-        return (
-          <>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <VideoLibrary searchQuery={searchQuery} />
-          </>
-        );
+        return <VideoLibrary searchQuery={searchQuery} />;
       case "rotina":
         return <RotinaSemCaos />;
       default:
