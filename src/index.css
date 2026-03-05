@@ -185,15 +185,25 @@
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-50;
     @apply bg-card/95 backdrop-blur-xl border-t border-border/50;
-    @apply flex items-center justify-around;
+    @apply flex items-center;
     @apply px-4 pb-safe;
     box-shadow: 0 -4px 30px -4px hsl(150 15% 25% / 0.08);
     padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+    overflow-x: auto;
+    white-space: nowrap;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-right: 1.5rem;
+  }
+
+  .bottom-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-item {
     @apply flex flex-col items-center gap-1 py-3 px-4;
     @apply text-muted-foreground transition-colors duration-200;
+    flex-shrink: 0;
   }
 
   .nav-item.active {
