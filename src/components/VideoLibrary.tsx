@@ -89,7 +89,19 @@ const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string })
 
   return (
     <div className="pb-24">
-      {/* Category Filters */}
+      {/* Search */}
+      <div className="px-4 pt-4 pb-2">
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar vídeos..."
+            value={searchQuery}
+            onChange={(e) => setInternalSearch(e.target.value)}
+            className="w-full bg-card border border-border rounded-2xl py-3 pl-10 pr-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm"
+          />
+        </div>
+      </div>
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center gap-2 mb-3">
           <Filter size={14} className="text-muted-foreground" />
