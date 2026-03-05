@@ -9,6 +9,7 @@ import RotinaSemCaos from "@/components/RotinaSemCaos";
 import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 import { Search, CheckCircle2, XCircle, AlertCircle, ClipboardCheck, X, Heart } from "lucide-react";
+import VideoLibrary from "@/components/VideoLibrary";
 
 // --- COMPONENTE DO DIÁRIO DE REAÇÕES ---
 const ReactionTracker = () => {
@@ -117,41 +118,6 @@ const ReadinessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
   );
 };
 
-// --- COMPONENTE DE VÍDEOS ---
-const VideoLibrary = ({ searchQuery }: { searchQuery: string }) => {
-  const allVideos = [
-    { id: "4oBnVNaN0jU", title: "Cortes Seguros BLW", category: "Segurança" },
-    { id: "X6z438GiVVc", title: "Como oferecer Laranja", category: "Cortes" },
-    { id: "1TeGyXsZA3U", title: "Introdução Alimentar: Começo", category: "Dicas" },
-    { id: "UCIjFewVtGc", title: "Como oferecer Batata", category: "Cortes" },
-  ];
-  const filteredVideos = allVideos.filter((v) => v.title.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  return (
-    <div className="p-4 bg-[#FDFCFB] pb-24">
-      <h2 className="text-xl font-bold text-gray-800 mb-4 px-1">Guia em Vídeo</h2>
-      <div className="grid grid-cols-1 gap-6">
-        {filteredVideos.map((video) => (
-          <div key={video.id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-            <div className="aspect-video">
-              <iframe
-                className="w-full h-full"
-                src={`https://www.youtube.com/embed/${video.id}`}
-                title={video.title}
-                frameBorder="0"
-                allowFullScreen
-              ></iframe>
-            </div>
-            <div className="p-4">
-              <span className="text-xs font-semibold text-[#10B981] uppercase">{video.category}</span>
-              <h3 className="text-lg font-medium text-gray-800 mt-1">{video.title}</h3>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<NavTab>("today");
@@ -229,12 +195,7 @@ const Index = () => {
       case "nutris":
         return <NutritionistsPage />;
       case "videos":
-        return (
-          <>
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <VideoLibrary searchQuery={searchQuery} />
-          </>
-        );
+        return <VideoLibrary searchQuery={searchQuery} />;
       case "rotina":
         return <RotinaSemCaos />;
       default:
