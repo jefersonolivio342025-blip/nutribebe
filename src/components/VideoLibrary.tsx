@@ -28,7 +28,7 @@ const ALL_VIDEOS: Video[] = [
 
   // --- Placeholders: substitua o id e videoUrl pelos seus links reais ---
   { id: "gag-vs-engasgo", title: "Sinais de Engasgo vs. GAG", description: "Entenda a diferença e saiba quando agir", category: "Segurança", duration: "01:55", videoUrl: "/videos/gag-vs-engasgo.mp4", thumbnailUrl: "/videos/gag-vs-engasgo-thumb.jpg" },
-  { id: "PLACEHOLDER_02", title: "Papinha de Abóbora com Frango", description: "Receita nutritiva e fácil para o almoço", category: "Receitas", duration: "5:40", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_02" },
+  { id: "papinha-abobora-frango", title: "Papinha de Abóbora com Frango", description: "Receita nutritiva e fácil para o almoço", category: "Receitas", duration: "1:23", videoUrl: "/videos/papinha-abobora-frango.mp4", thumbnailUrl: "/videos/papinha-abobora-frango-thumb.jpg" },
   { id: "PLACEHOLDER_03", title: "Bolinho de Banana e Aveia", description: "Lanche saudável sem açúcar para bebês", category: "Receitas", duration: "4:10", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_03" },
   { id: "PLACEHOLDER_04", title: "Bebê Recusa Comida: O que Fazer?", description: "Dicas para lidar com a seletividade alimentar", category: "Comportamento", duration: "7:55", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_04" },
   { id: "PLACEHOLDER_05", title: "Como Cortar Manga para BLW", description: "Corte seguro de manga para cada idade", category: "Cortes", duration: "3:20", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_05" },
