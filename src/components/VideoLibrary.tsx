@@ -27,7 +27,7 @@ const ALL_VIDEOS: Video[] = [
   { id: "UCIjFewVtGc", title: "Como oferecer Batata", description: "Formas de preparar batata para o bebê", category: "Cortes", duration: "4:20", videoUrl: "https://www.youtube.com/embed/UCIjFewVtGc" },
 
   // --- Placeholders: substitua o id e videoUrl pelos seus links reais ---
-  { id: "PLACEHOLDER_01", title: "Sinais de Engasgo vs. GAG", description: "Entenda a diferença e saiba quando agir", category: "Segurança", duration: "6:15", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_01" },
+  { id: "gag-vs-engasgo", title: "Sinais de Engasgo vs. GAG", description: "Entenda a diferença e saiba quando agir", category: "Segurança", duration: "01:55", videoUrl: "/videos/gag-vs-engasgo.mp4", thumbnailUrl: "/videos/gag-vs-engasgo-thumb.jpg" },
   { id: "PLACEHOLDER_02", title: "Papinha de Abóbora com Frango", description: "Receita nutritiva e fácil para o almoço", category: "Receitas", duration: "5:40", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_02" },
   { id: "PLACEHOLDER_03", title: "Bolinho de Banana e Aveia", description: "Lanche saudável sem açúcar para bebês", category: "Receitas", duration: "4:10", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_03" },
   { id: "PLACEHOLDER_04", title: "Bebê Recusa Comida: O que Fazer?", description: "Dicas para lidar com a seletividade alimentar", category: "Comportamento", duration: "7:55", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_04" },
