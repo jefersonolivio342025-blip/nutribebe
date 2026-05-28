@@ -8,6 +8,7 @@ interface Video {
   category: string;
   duration: string;
   videoUrl: string;
+  thumbnailUrl?: string;
 }
 
 const CATEGORIES = ['Todos', 'Alimentação', 'Segurança', 'Cortes', 'Receitas', 'Comportamento', 'Dicas'];
