@@ -61,6 +61,7 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
   const [playing, setPlaying] = useState(false);
   const [imgError, setImgError] = useState(false);
   const isPlaceholder = video.id.startsWith('PLACEHOLDER');
+  const isMp4 = video.videoUrl.endsWith('.mp4');
 
   const handlePlay = useCallback(() => {
     if (isPlaceholder) return;
@@ -68,6 +69,17 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
   }, [isPlaceholder]);
 
   if (playing) {
+    if (isMp4) {
+      return (
+        <video
+          className="w-full h-full"
+          src={video.videoUrl}
+          controls
+          autoPlay
+          playsInline
+        />
+      );
+    }
     return (
       <iframe
         className="w-full h-full"
@@ -81,6 +93,7 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
   }
 
   const showFallback = isPlaceholder || imgError;
+  const thumbSrc = video.thumbnailUrl ?? `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
 
   return (
     <button onClick={handlePlay} className="relative w-full h-full group cursor-pointer bg-muted">
@@ -89,7 +102,7 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
       ) : (
         <img
           loading="lazy"
-          src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
+          src={thumbSrc}
           alt={video.title}
           className="w-full h-full object-cover"
           onError={() => setImgError(true)}
