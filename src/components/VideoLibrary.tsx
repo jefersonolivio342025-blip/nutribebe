@@ -32,7 +32,7 @@ const ALL_VIDEOS: Video[] = [
   { id: "bolinho-banana-aveia", title: "Bolinho de Banana e Aveia", description: "Lanche saudável sem açúcar para bebês", category: "Receitas", duration: "1:56", videoUrl: "/videos/bolinho-banana-aveia.mp4", thumbnailUrl: "/videos/bolinho-banana-aveia-thumb.jpg" },
   { id: "PLACEHOLDER_04", title: "Bebê Recusa Comida: O que Fazer?", description: "Dicas para lidar com a seletividade alimentar", category: "Comportamento", duration: "7:55", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_04" },
   { id: "PLACEHOLDER_05", title: "Como Cortar Manga para BLW", description: "Corte seguro de manga para cada idade", category: "Cortes", duration: "3:20", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_05" },
-  { id: "PLACEHOLDER_06", title: "Alimentos Proibidos até 1 Ano", description: "Lista do que evitar na introdução alimentar", category: "Alimentação", duration: "9:00", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_06" },
+  { id: "alimentos-proibidos-1-ano", title: "Alimentos Proibidos até 1 Ano", description: "Lista do que evitar na introdução alimentar", category: "Alimentação", duration: "6:03", videoUrl: "/videos/alimentos-proibidos-1-ano.m4a", thumbnailUrl: "/videos/alimentos-proibidos-1-ano-thumb.jpg" },
   { id: "PLACEHOLDER_07", title: "Risoto de Legumes para Bebê", description: "Receita completa com proteína e vegetais", category: "Receitas", duration: "6:30", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_07" },
   { id: "PLACEHOLDER_08", title: "Higiene dos Alimentos", description: "Como higienizar frutas e verduras corretamente", category: "Segurança", duration: "4:50", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_08" },
   { id: "PLACEHOLDER_09", title: "Introdução do Ovo ao Bebê", description: "Quando e como oferecer ovo com segurança", category: "Alimentação", duration: "5:15", videoUrl: "https://www.youtube.com/embed/PLACEHOLDER_09" },
@@ -62,6 +62,7 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
   const [imgError, setImgError] = useState(false);
   const isPlaceholder = video.id.startsWith('PLACEHOLDER');
   const isMp4 = video.videoUrl.endsWith('.mp4');
+  const isAudio = /\.(m4a|mp3|wav|ogg)$/i.test(video.videoUrl);
 
   const handlePlay = useCallback(() => {
     if (isPlaceholder) return;
@@ -78,6 +79,19 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
           autoPlay
           playsInline
         />
+      );
+    }
+    if (isAudio) {
+      const thumbSrc = video.thumbnailUrl ?? '';
+      return (
+        <div className="relative w-full h-full bg-muted">
+          {thumbSrc && (
+            <img src={thumbSrc} alt={video.title} className="w-full h-full object-cover" />
+          )}
+          <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60">
+            <audio className="w-full" src={video.videoUrl} controls autoPlay />
+          </div>
+        </div>
       );
     }
     return (
