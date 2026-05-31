@@ -148,7 +148,7 @@ const PlateBuilder = () => {
   const items = grouped[activeCategory] || [];
 
   return (
-    <div className="page-container">
+    <div className="page-container overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
@@ -173,9 +173,9 @@ const PlateBuilder = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-colors duration-200 ${
                 isActive
-                  ? `${cat.bgClass} border-primary/30 scale-[1.03]`
+                  ? `${cat.bgClass} border-primary/40`
                   : "bg-card border-border/40 hover:bg-secondary/50"
               }`}
             >
