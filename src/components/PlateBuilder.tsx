@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
-import { Beef, Wheat, Leaf, Bean, Sparkles, RefreshCw, Baby, ChevronDown, ChevronUp } from "lucide-react";
+import { Beef, Wheat, Leaf, Bean, Sparkles, Baby, Plus, X, ChefHat } from "lucide-react";
 import { useAlimentos } from "@/hooks/useAlimentos";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const LEGUMINOSAS = ["Feijão", "Feijão preto", "Grão-de-bico", "Lentilhas", "Ervilhas"];
 
@@ -73,53 +74,83 @@ interface AlimentoDB {
   corte_12_mais: string | null;
 }
 
-const FoodItem = ({ item }: { item: AlimentoDB }) => {
-  const [open, setOpen] = useState(false);
+const FoodGridCard = ({ item, onSelect }: { item: AlimentoDB; onSelect: () => void }) => {
   const emoji = emojiMap[item.nome] || "🍽️";
-
   return (
-    <div className="rounded-2xl bg-card border border-border/60 overflow-hidden transition-all">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left"
-      >
-        <span className="text-2xl w-9 h-9 flex items-center justify-center rounded-xl bg-secondary shrink-0">
-          {emoji}
-        </span>
-        <span className="font-bold text-sm text-foreground flex-1">{item.nome}</span>
-        {open ? (
-          <ChevronUp size={16} className="text-muted-foreground" />
-        ) : (
-          <ChevronDown size={16} className="text-muted-foreground" />
-        )}
-      </button>
-      {open && (
-        <div className="px-4 pb-4 pt-0 space-y-2 animate-slide-up">
+    <button
+      onClick={onSelect}
+      className="relative flex flex-col items-center justify-between gap-2 p-3 pt-4 rounded-2xl bg-card border border-border/60 shadow-sm transition-all duration-200 active:scale-[0.97] hover:shadow-md hover:border-primary/40"
+    >
+      <span className="text-4xl leading-none drop-shadow-sm">{emoji}</span>
+      <span className="text-[12px] font-bold text-foreground text-center leading-tight line-clamp-2 min-h-[2.2em]">
+        {item.nome}
+      </span>
+      <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md">
+        <Plus size={14} strokeWidth={3} />
+      </span>
+    </button>
+  );
+};
+
+const FoodDetailDialog = ({ item, onClose }: { item: AlimentoDB | null; onClose: () => void }) => {
+  if (!item) return null;
+  const emoji = emojiMap[item.nome] || "🍽️";
+  return (
+    <Dialog open={!!item} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="sm:max-w-md rounded-2xl">
+        <div className="flex flex-col items-center text-center pt-2">
+          <div className="w-20 h-20 rounded-3xl bg-secondary flex items-center justify-center text-5xl mb-2 shadow-sm">
+            {emoji}
+          </div>
+          <h3 className="text-xl font-extrabold text-foreground">{item.nome}</h3>
+        </div>
+        <div className="space-y-4 mt-2">
           {item.preparo && (
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Preparo:</strong> {item.preparo}
-            </p>
+            <div className="rounded-2xl bg-primary/5 border border-primary/15 p-4">
+              <div className="flex items-center gap-2 mb-1.5">
+                <ChefHat size={16} className="text-primary" />
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">Como preparar</p>
+              </div>
+              <p className="text-sm text-foreground/90 leading-relaxed">{item.preparo}</p>
+            </div>
           )}
-          <div className="flex flex-wrap gap-1.5">
-            {item.corte_6_9m && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 text-[10px] font-bold text-primary">
-                <Baby size={10} /> 6-9m: {item.corte_6_9m}
-              </span>
-            )}
-            {item.corte_9_12m && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-accent/15 text-[10px] font-bold text-accent-foreground">
-                <Baby size={10} /> 9-12m: {item.corte_9_12m}
-              </span>
-            )}
-            {item.corte_12_mais && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary text-[10px] font-bold text-muted-foreground">
-                <Baby size={10} /> +12m: {item.corte_12_mais}
-              </span>
-            )}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Corte seguro por idade
+            </p>
+            <div className="space-y-2">
+              {item.corte_6_9m && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-primary/8 border border-primary/15">
+                  <Baby size={14} className="text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-primary">6-9 meses</p>
+                    <p className="text-sm text-foreground/90">{item.corte_6_9m}</p>
+                  </div>
+                </div>
+              )}
+              {item.corte_9_12m && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-accent/10 border border-accent/20">
+                  <Baby size={14} className="text-accent-foreground mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-accent-foreground">9-12 meses</p>
+                    <p className="text-sm text-foreground/90">{item.corte_9_12m}</p>
+                  </div>
+                </div>
+              )}
+              {item.corte_12_mais && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-secondary border border-border">
+                  <Baby size={14} className="text-muted-foreground mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-muted-foreground">+12 meses</p>
+                    <p className="text-sm text-foreground/90">{item.corte_12_mais}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
