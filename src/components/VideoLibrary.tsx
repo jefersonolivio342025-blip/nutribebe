@@ -118,29 +118,61 @@ const VideoThumbnail = ({ video }: { video: Video }) => {
           loading="lazy"
           src={thumbSrc}
           alt={video.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={() => setImgError(true)}
         />
       )}
       {!isPlaceholder && (
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/40 transition-colors">
-          <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-            <Play size={24} className="text-foreground ml-1" fill="currentColor" />
+        <>
+          {/* Soft gradient overlay for legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/10" />
+          {/* Centered semi-transparent play */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-14 h-14 rounded-full bg-white/85 backdrop-blur-sm flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+              <Play size={22} className="text-foreground ml-0.5" fill="currentColor" />
+            </div>
           </div>
-        </div>
+        </>
       )}
       {isPlaceholder && (
-        <div className="absolute top-2 left-2 bg-muted-foreground/60 text-white text-[9px] font-bold px-2 py-0.5 rounded-md">
+        <div className="absolute top-2 left-2 bg-muted-foreground/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-md">
           Em breve
         </div>
       )}
-      <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+      <span className="absolute bottom-2 right-2 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
         <Clock size={10} />
         {video.duration}
       </span>
     </button>
   );
 };
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  Alimentação: '🍎',
+  Segurança: '🛡️',
+  Cortes: '✂️',
+  Receitas: '👩‍🍳',
+  Comportamento: '🧒',
+  Dicas: '💡',
+};
+
+const VideoCard = ({ video }: { video: Video }) => (
+  <div className="snap-start shrink-0 w-[260px] bg-card rounded-2xl shadow-sm overflow-hidden border border-border/60 transition-all duration-200 hover:shadow-md">
+    <div className="aspect-video overflow-hidden">
+      <VideoThumbnail video={video} />
+    </div>
+    <div className="p-3">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{video.category}</span>
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+          <Clock size={10} /> {video.duration}
+        </span>
+      </div>
+      <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2">{video.title}</h3>
+      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{video.description}</p>
+    </div>
+  </div>
+);
 
 const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string }) => {
   const [activeCategory, setActiveCategory] = useState('Todos');
@@ -153,6 +185,15 @@ const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string })
     const matchesCategory = activeCategory === 'Todos' || v.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Group filtered videos by category, preserving CATEGORIES order
+  const categoriesToShow = activeCategory === 'Todos'
+    ? CATEGORIES.filter((c) => c !== 'Todos')
+    : [activeCategory];
+
+  const grouped = categoriesToShow
+    .map((cat) => ({ cat, videos: filtered.filter((v) => v.category === cat) }))
+    .filter((g) => g.videos.length > 0);
 
   return (
     <div className="pb-24">
@@ -181,7 +222,7 @@ const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string })
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 active:scale-95 ${
                 activeCategory === cat
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'bg-secondary text-muted-foreground hover:bg-accent'
@@ -193,37 +234,42 @@ const VideoLibrary = ({ searchQuery: externalSearch }: { searchQuery?: string })
         </div>
       </div>
 
-      {/* Video Grid */}
-      <div className="px-4">
-        <h2 className="text-xl font-bold text-foreground mb-1">Guia em Vídeo</h2>
-        <p className="text-xs text-muted-foreground mb-4">{filtered.length} vídeos disponíveis</p>
-        <div className="grid grid-cols-1 gap-5">
-          {filtered.map((video) => (
-            <div key={video.id} className="bg-card rounded-2xl shadow-sm overflow-hidden border border-border">
-              <div className="aspect-video rounded-t-2xl overflow-hidden">
-                <VideoThumbnail video={video} />
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{video.category}</span>
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <Clock size={10} /> {video.duration}
-                  </span>
-                </div>
-                <h3 className="text-sm font-bold text-foreground">{video.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{video.description}</p>
-              </div>
+      {/* Header */}
+      <div className="px-4 mb-2">
+        <h2 className="text-xl font-bold text-foreground">Guia em Vídeo</h2>
+        <p className="text-xs text-muted-foreground">{filtered.length} vídeos disponíveis</p>
+      </div>
+
+      {/* Horizontal carousels per category */}
+      <div className="space-y-6 mt-3">
+        {grouped.map(({ cat, videos }) => (
+          <section key={cat}>
+            <div className="px-4 flex items-center justify-between mb-2">
+              <h3 className="text-sm font-extrabold text-foreground flex items-center gap-2">
+                <span className="text-base">{CATEGORY_EMOJI[cat] ?? '🎬'}</span>
+                {cat}
+              </h3>
+              <span className="text-[11px] text-muted-foreground font-semibold">{videos.length} vídeos</span>
             </div>
-          ))}
-          {filtered.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="text-sm">Nenhum vídeo encontrado.</p>
+            <div
+              className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 px-4"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {videos.map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
             </div>
-          )}
-        </div>
+          </section>
+        ))}
+        {grouped.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground px-4">
+            <p className="text-sm">Nenhum vídeo encontrado.</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default VideoLibrary;
+

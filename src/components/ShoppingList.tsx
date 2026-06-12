@@ -178,12 +178,17 @@ const ShoppingList = ({ weekMenu }: ShoppingListProps) => {
                 {completedCount} de {totalCount} itens
               </span>
             </div>
-            <div className="h-3 bg-secondary rounded-full overflow-hidden">
+            <div className="h-3 bg-secondary rounded-full overflow-hidden shadow-inner">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
+                className="h-full rounded-full transition-[width] duration-700 ease-out"
+                style={{
+                  width: `${progress}%`,
+                  background: "linear-gradient(90deg, hsl(120 55% 55%), hsl(95 50% 50%))",
+                  boxShadow: "0 0 12px hsl(120 55% 55% / 0.4)",
+                }}
               />
             </div>
+
           </div>
 
           {/* ITENS PERSONALIZADOS DA MÃE */}
