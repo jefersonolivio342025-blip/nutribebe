@@ -151,25 +151,25 @@
   }
 
   .food-tag {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-tight;
   }
 
   .food-tag-protein {
     @apply food-tag;
-    background: hsl(var(--protein) / 0.15);
-    color: hsl(var(--protein));
+    background: hsl(15 75% 90%);
+    color: hsl(15 60% 35%);
   }
 
   .food-tag-carbs {
     @apply food-tag;
-    background: hsl(var(--carbs) / 0.2);
-    color: hsl(40 50% 40%);
+    background: hsl(40 85% 88%);
+    color: hsl(35 60% 32%);
   }
 
   .food-tag-veggies {
     @apply food-tag;
-    background: hsl(var(--veggies) / 0.15);
-    color: hsl(var(--veggies));
+    background: hsl(120 45% 88%);
+    color: hsl(120 35% 28%);
   }
 
   .blur-paywall {
