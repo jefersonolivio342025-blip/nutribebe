@@ -49,7 +49,7 @@ const WeeklyCalendar = ({ weekMenu, isLocked, onUpdateMenu }: WeeklyCalendarProp
 
       {weekMenu.length > 0 ? (
         <>
-          {/* Day Selector */}
+          {/* Day Selector — native-style pill */}
           <div className="flex gap-2 overflow-x-auto pb-4 mb-4 -mx-4 px-4 scrollbar-hide">
             {weekMenu.map((day, index) => {
               const isSelected = selectedDay === index;
@@ -60,26 +60,29 @@ const WeeklyCalendar = ({ weekMenu, isLocked, onUpdateMenu }: WeeklyCalendarProp
                 <button
                   key={day.dayName}
                   onClick={() => setSelectedDay(index)}
-                  className={`flex-shrink-0 px-4 py-3 rounded-2xl transition-all duration-200 ${
+                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-1 w-14 py-2.5 rounded-2xl transition-all duration-200 active:scale-95 ${
                     isSelected
-                      ? "bg-primary text-primary-foreground shadow-card"
-                      : "bg-card text-foreground shadow-soft hover:shadow-card"
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "bg-transparent text-muted-foreground hover:bg-secondary/60"
                   } ${locked ? "opacity-70" : ""}`}
                 >
-                  <p className="text-xs font-medium opacity-80">{day.dayName.slice(0, 3)}</p>
-                  <p className="text-lg font-bold">{day.date.getDate()}</p>
-                  {isToday && (
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full mx-auto mt-1 ${
-                        isSelected ? "bg-primary-foreground" : "bg-primary"
-                      }`}
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${isSelected ? "opacity-90" : ""}`}>
+                    {day.dayName.slice(0, 3)}
+                  </span>
+                  <span className={`text-lg font-extrabold leading-none ${isSelected ? "" : "text-foreground"}`}>
+                    {day.date.getDate()}
+                  </span>
+                  {isToday && !locked && (
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-primary-foreground" : "bg-primary"}`}
                     />
                   )}
-                  {locked && <Lock size={12} className="mx-auto mt-1" />}
+                  {locked && <Lock size={11} className="mt-0.5" />}
                 </button>
               );
             })}
           </div>
+
 
           {/* Selected Day Content */}
           {weekMenu[selectedDay] && (
