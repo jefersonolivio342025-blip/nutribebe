@@ -157,11 +157,11 @@ const FoodDetailDialog = ({ item, onClose }: { item: AlimentoDB | null; onClose:
 const PlateBuilder = () => {
   const { data: alimentos, isLoading } = useAlimentos();
   const [activeCategory, setActiveCategory] = useState("proteina");
+  const [selectedItem, setSelectedItem] = useState<AlimentoDB | null>(null);
 
   const grouped = useMemo(() => {
     if (!alimentos) return {};
     const map: Record<string, AlimentoDB[]> = {};
-    // Deduplicate by name per category
     categories.forEach((cat) => {
       const seen = new Set<string>();
       map[cat.id] = alimentos
@@ -192,7 +192,7 @@ const PlateBuilder = () => {
           Montador de Prato Saudável
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Escolha um alimento de cada grupo para montar a refeição ideal.
+          Toque em um alimento para ver preparo e cortes seguros.
         </p>
       </div>
 
@@ -237,25 +237,28 @@ const PlateBuilder = () => {
         </span>
       </div>
 
-      {/* Food List */}
+      {/* Food Grid */}
       {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-14 rounded-2xl bg-secondary/60 animate-pulse" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-28 rounded-2xl bg-secondary/60 animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {items.map((item) => (
-            <FoodItem key={item.id} item={item} />
+            <FoodGridCard key={item.id} item={item} onSelect={() => setSelectedItem(item)} />
           ))}
           {items.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p className="col-span-full text-sm text-muted-foreground text-center py-8">
               Nenhum alimento encontrado nesta categoria.
             </p>
           )}
         </div>
       )}
+
+      <FoodDetailDialog item={selectedItem} onClose={() => setSelectedItem(null)} />
+
 
       {/* Tip */}
       <div className="mt-6 p-4 rounded-2xl bg-primary/8 border border-primary/15">
