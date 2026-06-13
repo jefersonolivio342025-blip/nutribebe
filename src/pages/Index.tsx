@@ -10,6 +10,8 @@ import { DayMenu } from "@/data/menuData";
 import { useGenerateMenu } from "@/hooks/useGenerateMenu";
 import { Search, CheckCircle2, XCircle, AlertCircle, ClipboardCheck, X, Heart } from "lucide-react";
 import VideoLibrary from "@/components/VideoLibrary";
+import { EncyclopediaProvider } from "@/hooks/useEncyclopedia";
+import GlobalFoodSearch from "@/components/GlobalFoodSearch";
 
 // --- COMPONENTE DO DIÁRIO DE REAÇÕES ---
 const ReactionTracker = () => {
