@@ -206,11 +206,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFCFB]">
-      <div className="pb-24">{renderContent()}</div>
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <ReadinessModal isOpen={isReadinessOpen} onClose={() => setIsReadinessOpen(false)} />
-    </div>
+    <EncyclopediaProvider>
+      <div className="min-h-screen bg-[#FDFCFB]">
+        <GlobalFoodSearch />
+        <div className="pb-24">{renderContent()}</div>
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <ReadinessModal isOpen={isReadinessOpen} onClose={() => setIsReadinessOpen(false)} />
+      </div>
+    </EncyclopediaProvider>
   );
 };
 
