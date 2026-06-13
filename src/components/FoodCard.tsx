@@ -1,102 +1,76 @@
-import { useState } from 'react';
-import { ChevronDown, Baby, Scissors, ChefHat } from 'lucide-react';
 import { Food } from '@/data/menuData';
+import { ChevronRight } from 'lucide-react';
+import { useEncyclopedia } from '@/hooks/useEncyclopedia';
+import { getFoodImage } from '@/lib/foodImages';
 
 interface FoodCardProps {
   food: Food;
 }
 
+const groupStyles: Record<string, string> = {
+  protein: 'food-tag-protein',
+  carbs: 'food-tag-carbs',
+  veggies: 'food-tag-veggies',
+  fruit: 'food-tag-carbs',
+};
+
+const groupLabels: Record<string, string> = {
+  protein: 'Proteína',
+  carbs: 'Carboidrato',
+  veggies: 'Legumes',
+  fruit: 'Fruta',
+};
+
+const groupToTipo: Record<string, string> = {
+  protein: 'proteina',
+  carbs: 'carboidrato',
+  veggies: 'vegetal',
+  fruit: 'fruit',
+};
+
 const FoodCard = ({ food }: FoodCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { open } = useEncyclopedia();
+  const img = getFoodImage(food.name);
 
-  const groupStyles: Record<string, string> = {
-    protein: 'food-tag-protein',
-    carbs: 'food-tag-carbs',
-    veggies: 'food-tag-veggies',
-    fruit: 'food-tag-carbs',
-  };
-
-  const groupLabels: Record<string, string> = {
-    protein: 'Proteína',
-    carbs: 'Carboidrato',
-    veggies: 'Legumes',
-    fruit: 'Fruta',
+  const handleClick = () => {
+    open({
+      nome: food.name,
+      emoji: food.emoji,
+      tipo: groupToTipo[food.group] || 'vegetal',
+      preparo: food.prepGuide,
+      corte_6_9m: food.cutGuide['6-9'],
+      corte_9_12m: food.cutGuide['9-12'],
+      corte_12_mais: food.cutGuide['12+'],
+    });
   };
 
   return (
-    <div className="card-soft mb-3 animate-fade-in">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">{food.emoji}</span>
-          <div className="text-left">
-            <p className="font-semibold text-foreground">{food.name}</p>
-            <span className={groupStyles[food.group]}>
-              {groupLabels[food.group]}
-            </span>
-          </div>
+    <button
+      onClick={handleClick}
+      className="w-full card-soft mb-3 flex items-center justify-between gap-3 text-left transition-all duration-200 active:scale-[0.99] hover:shadow-md"
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden shrink-0">
+          {img ? (
+            <img
+              src={img}
+              alt={food.name}
+              width={96}
+              height={96}
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-2xl">{food.emoji}</span>
+          )}
         </div>
-        <ChevronDown
-          size={20}
-          className={`text-muted-foreground transition-transform duration-300 ${
-            isExpanded ? 'rotate-180' : ''
-          }`}
-        />
-      </button>
-
-      <div
-        className={`expandable-card ${
-          isExpanded ? 'max-h-96 mt-4 pt-4 border-t border-border' : 'max-h-0'
-        }`}
-      >
-        {isExpanded && (
-          <div className="space-y-4 animate-fade-in">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-sage-light/50">
-                <ChefHat size={18} className="text-sage-dark" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-foreground mb-1">
-                  Como preparar
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {food.prepGuide}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-terracotta-light/50">
-                <Scissors size={18} className="text-terracotta" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-foreground mb-2">
-                  Corte seguro por idade
-                </p>
-                <div className="space-y-2">
-                  {Object.entries(food.cutGuide).map(([age, guide]) => (
-                    <div
-                      key={age}
-                      className="flex items-start gap-2 text-sm"
-                    >
-                      <div className="flex items-center gap-1 min-w-[70px]">
-                        <Baby size={14} className="text-primary" />
-                        <span className="font-medium text-primary">
-                          {age === '12+' ? '12+ meses' : `${age} meses`}
-                        </span>
-                      </div>
-                      <span className="text-muted-foreground">{guide}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground truncate">{food.name}</p>
+          <span className={groupStyles[food.group]}>{groupLabels[food.group]}</span>
+        </div>
       </div>
-    </div>
+      <ChevronRight size={18} className="text-muted-foreground shrink-0" />
+    </button>
   );
 };
 
